@@ -1,7 +1,7 @@
-from neural_ik.generators import RandomGen
+from data.generators import RandomGen
 import tensorflow as tf
 
-from neural_ik.robots import arm7dof
+from data.robots import arm7dof
 
 
 def main():

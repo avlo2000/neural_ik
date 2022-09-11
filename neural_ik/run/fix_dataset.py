@@ -1,6 +1,4 @@
-from neural_ik import dataset
-from neural_ik import generators
-from neural_ik import robots
+from data import dataset, generators, robots
 
 
 def main():

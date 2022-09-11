@@ -1,7 +1,7 @@
 import numpy as np
 from tqdm import tqdm
 
-from neural_ik.abstract_generator import FKGenerator
+from data.abstract_generator import FKGenerator
 
 
 class RandomGen(FKGenerator):

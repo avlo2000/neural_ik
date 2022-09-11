@@ -2,7 +2,9 @@ import numpy as np
 from tqdm import tqdm
 from typing import Tuple
 
-from .abstract_generator import FKGenerator
+from visual_kinematics import Frame
+
+from data.abstract_generator import FKGenerator
 import csv
 
 
@@ -26,6 +28,10 @@ def read(path_to_file: str) -> Tuple[list, list]:
     x = []
     y = []
     for row in reader:
-        x.append([row[feat] for feat in feat_names if feat.startswith('x')])
-        y.append([row[feat] for feat in feat_names if feat.startswith('y')])
+        x.append(np.asarray([float(row[feat]) for feat in feat_names if feat.startswith('x')]))
+        y.append(np.asarray([float(row[feat]) for feat in feat_names if feat.startswith('y')]))
     return x, y
+
+
+def vec_to_frame(vec: np.ndarray) -> Frame:
+    return Frame.from_euler_3(vec[3:, np.newaxis], vec[:3, np.newaxis])

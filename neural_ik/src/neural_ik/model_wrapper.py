@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Callable
 
-from neural_ik.abstract_generator import FKGenerator
+from data.abstract_generator import FKGenerator
 from neural_ik.visual import plot_training_history
 
 import tensorflow as tf

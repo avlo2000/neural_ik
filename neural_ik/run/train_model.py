@@ -2,9 +2,9 @@ import numpy as np
 import tensorflow as tf
 
 from neural_ik.models import converging_dnn
-from neural_ik.generators import TrjGen
+from data.generators import TrjGen
 from neural_ik.visual import plot_training_history
-from neural_ik.robots import arm6dof
+from data.robots import arm6dof
 from datetime import datetime
 
 
