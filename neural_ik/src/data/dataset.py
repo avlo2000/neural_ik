@@ -34,4 +34,10 @@ def read(path_to_file: str) -> Tuple[list, list]:
 
 
 def vec_to_frame(vec: np.ndarray) -> Frame:
-    return Frame.from_euler_3(vec[3:, np.newaxis], vec[:3, np.newaxis])
+    return Frame.from_q_4(vec[:4], vec[4:, np.newaxis])
+
+
+def frame_to_vec(frame: Frame) -> np.ndarray:
+    quat = frame.q_4
+    tr = frame.t_3_1
+    return np.append(quat, tr)

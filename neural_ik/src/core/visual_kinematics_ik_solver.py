@@ -8,6 +8,8 @@ from core.ik_solver import IKSolver
 
 class VisualKinematicsIKSolver(IKSolver):
 
-    def solve(self, pose: Frame) -> Optional[np.ndarray]:
-        self._robot.inverse(pose)
-        return self._robot.axis_values
+    def _solve(self, pose: Frame) -> Optional[np.ndarray]:
+        self.robot.inverse(pose)
+        if self.robot.is_reachable_inverse:
+            return self.robot.axis_values
+        return None

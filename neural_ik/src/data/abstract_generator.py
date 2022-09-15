@@ -40,16 +40,6 @@ class FKGenerator(tf.keras.utils.Sequence):
     def _generate(self):
         pass
 
-    @staticmethod
-    def _frame_to_vec(cart_iso: Frame) -> np.array:
-        r = cart_iso.r_3
-        tr = cart_iso.t_3_1
-        return np.append(tr, r)
-
-    @staticmethod
-    def _vec_to_frame(vec: np.array) -> Frame:
-        return Frame.from_r_3(vec[:3], np.array([[t] for t in vec[3:]]))
-
     @property
     def frames(self) -> list:
         return [self._vec_to_frame(vec) for vec in self._x]

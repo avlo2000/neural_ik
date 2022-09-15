@@ -2,6 +2,7 @@ import numpy as np
 from tqdm import tqdm
 
 from data.abstract_generator import FKGenerator
+from data.dataset import frame_to_vec
 
 
 class RandomGen(FKGenerator):
@@ -18,7 +19,7 @@ class RandomGen(FKGenerator):
         for _ in tqdm(range(self._n)):
             joint = np.random.rand(self._dof) * (mx - mn) + mn
             cart_iso = self._robot.forward(joint)
-            cart = self._frame_to_vec(cart_iso)
+            cart = frame_to_vec(cart_iso)
 
             self._x.append(cart)
             self._y.append(joint)
@@ -41,7 +42,7 @@ class JakGen(FKGenerator):
         for _ in tqdm(range(self._n)):
             joint = np.random.rand(self._dof) * priors * (mx - mn) + mn
             cart_iso = self._robot.forward(joint)
-            flat_cart = self._frame_to_vec(cart_iso)
+            flat_cart = frame_to_vec(cart_iso)
 
             self._x.append(self._append_jac(flat_cart))
             self._y.append(joint)
@@ -100,7 +101,7 @@ class TrjGen(FKGenerator):
         prev = from_j - np.random.uniform(low=-self.step, high=self.step, size=self._dof)
         for joint in j_inter:
             cart_iso = self._robot.forward(joint)
-            flat_cart = self._frame_to_vec(cart_iso)
+            flat_cart = frame_to_vec(cart_iso)
 
             x.append(flat_cart)
             x_prev.append(prev)

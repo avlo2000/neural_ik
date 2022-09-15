@@ -6,16 +6,16 @@ from unittest import TestCase
 import numpy as np
 from visual_kinematics import Frame
 
-from core_ik.ik_solver import IKSolver
-from core_ik.evaluate import evaluate
-from core_ik.evaluate_report import EvaluateReport
+from core.ik_solver import IKSolver
+from core.evaluate import evaluate
+from core.evaluate_report import EvaluateReport
 
 
 class IKSolverMock(IKSolver):
     def __init__(self):
         super().__init__(None)
 
-    def solve(self, pose: Frame) -> Optional[np.ndarray]:
+    def _solve(self, pose: Frame) -> Optional[np.ndarray]:
         sleep(0.01)
         if pose is None:
             return None
@@ -34,15 +34,16 @@ class TestEvaluate(TestCase):
 
         self.assertEqual(report.total, reachable + nones)
         self.assertEqual(report.found, reachable)
-        self.assertAlmostEqual(report.average_loss, 0.0)
-        self.assertGreater(report.average_time, 0.0)
+        self.assertTrue((report.losses > 0).all())
+        self.assertTrue(report.losses.sum() > 0)
+        self.assertTrue((report.times > 0).all())
 
     def test_evaluate_report_has_correct_repr(self):
-        report = EvaluateReport(100, 50, 0.02, 0.2)
+        report = EvaluateReport(100, 50, np.ones(100), np.ones(100))
         self.assertEqual(dataclasses.asdict(report),
                          {
                              'found': 100,
                              'total': 50,
-                             'average_time': 0.02,
-                             'average_loss': 0.2
+                             'average_time': np.ones(100),
+                             'average_loss': np.ones(100)
                          })
