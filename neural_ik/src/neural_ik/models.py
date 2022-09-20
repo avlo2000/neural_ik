@@ -1,5 +1,18 @@
 import tensorflow as tf
 
+from tf_kinematics.dlkinematics import DLKinematics
+from tf_kinematics.layers import ForwardKinematics, IsometryCompact, IsometryInverse
+
+
+def fk_dnn(kin: DLKinematics) -> tf.keras.Model:
+    input_layer = tf.keras.Input(kin.dof)
+    x = ForwardKinematics(kin)(input_layer)
+    x = IsometryInverse()(x)
+    output_layer = IsometryCompact()(x)
+    model = tf.keras.Model(input_layer, output_layer, name="fk_dnn")
+
+    return model
+
 
 def simple_dnn(input_dim: int, dof: int) -> tf.keras.Model:
     input_layer = tf.keras.Input(input_dim)
@@ -46,3 +59,10 @@ def converging_dnn(input_dim: int, dof: int) -> tf.keras.Model:
 
     model = tf.keras.Model(inputs=[cart_layer_input, prev_state_input], outputs=output_layer, name="converging_dnn")
     return model
+
+
+def fk_dist_estimator(input_dim: int, dof: int) -> tf.keras.Model:
+    cart_layer_input = tf.keras.Input(input_dim)
+    q_input = tf.keras.Input(dof)
+
+
