@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.spatial.transform import Rotation
 from visual_kinematics import Frame
 from dual_quaternions import DualQuaternion
 

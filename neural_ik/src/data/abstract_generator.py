@@ -1,7 +1,6 @@
 from abc import ABCMeta
 from abc import abstractmethod
 from visual_kinematics.RobotSerial import RobotSerial
-from visual_kinematics.RobotTrajectory import Frame
 
 import tensorflow as tf
 import numpy as np

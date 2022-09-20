@@ -3,7 +3,7 @@ from unittest import TestCase
 import numpy as np
 from visual_kinematics import Frame
 
-from data.dataset import frame_to_vec, vec_to_frame
+from data.data_io import frame_to_vec, vec_to_frame
 
 
 class TestEvaluate(TestCase):
