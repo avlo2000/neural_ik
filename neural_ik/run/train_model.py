@@ -28,7 +28,7 @@ def main():
     model = simple_dnn(6, gen_train.output_dim)
 
     opt = tf.keras.optimizers.RMSprop()
-    loss = MeanSquaredError() #DualQuatMormLoss(robot)
+    loss = MeanSquaredError()
     model.compile(optimizer=opt, loss=loss)
 
     history = model.fit_generator(generator=gen_train, validation_data=gen_valid, epochs=6)

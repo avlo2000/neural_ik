@@ -12,14 +12,14 @@ class ForwardKinematics(Layer):
         super(ForwardKinematics, self).__init__(**kwargs)
 
     def build(self, input_shape):
-        assert self.kernel.dof == input_shape[1], 'DOF of kinematics chain must be same as input shape'
+        assert self.kernel.dof == input_shape[1], f'DOF of kinematics chain must be same as input shape. ' \
+                                                  f'DOF is {self.kernel.dof} got {input_shape[1]}'
 
     def call(self, inputs, **kwargs):
         return self.kernel.forward(tf.reshape(inputs, [-1]))
 
     def compute_output_shape(self, input_shape):
         return self.batch_size, 4, 4
-
 
 
 class IsometryInverse(Layer):

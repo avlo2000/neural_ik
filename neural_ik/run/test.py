@@ -1,13 +1,38 @@
-
 import tensorflow as tf
+from keras.losses import MeanSquaredError
+from tqdm import tqdm
 
-from neural_ik.models import fk_dnn
+from neural_ik.models import residual_fk_dnn
+
+
 from tf_kinematics.kinematic_models import kuka_robot
 
 
 if __name__ == '__main__':
     kin = kuka_robot()
-    model = fk_dnn(kin)
-    print(kin.dof)
-    print(tf.random.uniform(shape=(1, kin.dof)))
-    print(model(tf.random.uniform(shape=(1, kin.dof))))
+    model, thera_out = residual_fk_dnn(kin)
+    model.summary()
+
+    opt = tf.keras.optimizers.RMSprop()
+    loss = MeanSquaredError()
+    model.compile(optimizer=opt, loss=loss)
+
+    n = 5000
+    thetas_rnd_seed = []
+    gammas = []
+
+    for _ in tqdm(range(n)):
+        theta_rnd_seed = tf.random.uniform(shape=(1, kin.dof))
+        theta_rnd = tf.random.uniform(shape=(1, kin.dof))
+        gamma = kin.forward(tf.reshape(theta_rnd, [-1]))
+
+        thetas_rnd_seed.append(theta_rnd_seed)
+        gammas.append(gamma)
+    thetas_rnd_seed = tf.squeeze(tf.stack(thetas_rnd_seed))
+    gammas = tf.squeeze(tf.stack(gammas))
+
+    y = tf.squeeze(tf.stack([tf.eye(4)] * n))
+
+    model.fit(x=[thetas_rnd_seed, gammas], y=y, epochs=10, batch_size=1)
+
+
