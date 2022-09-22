@@ -2,13 +2,14 @@ import numpy as np
 import tensorflow as tf
 
 from neural_ik.models import converging_dnn, simple_dnn
-from data.data_io import load_as_tf_dataset, load_dataset
+from data.generators import TrjGen, RandomGen
 from neural_ik.visual import plot_training_history
 from neural_ik.loss_functions import DualQuatMormLoss
 from data.robots import arm6dof
 from datetime import datetime
-from keras.losses import MSE
-from keras.optimizers import Adagrad
+from keras.metrics import MeanSquaredError
+
+Generator = RandomGen
 
 
 def save_model(model, tag):
@@ -16,21 +17,25 @@ def save_model(model, tag):
 
 
 def main():
-    dataset_name = 'fk_ds_0_0_3'
-    train_x, train_y, val_x, val_y = load_dataset(dataset_name)
+    robot = arm6dof()
+    dof = robot.num_axis
+    ws_lim = np.zeros((dof, 2), dtype=np.float32)
+    ws_lim[:, 1] = [np.pi] * dof
+    ws_lim[:, 0] = [-np.pi] * dof
 
-    model = simple_dnn(train_x.shape[1], train_y.shape[1])
+    gen_train = Generator(batch_size=32, robot=robot, n=100)
+    gen_valid = Generator(batch_size=32, robot=robot, n=100)
+    model = simple_dnn(6, gen_train.output_dim)
 
-    loss = MSE  #DualQuatMormLoss(robot)
-    opt = Adagrad()
+    opt = tf.keras.optimizers.RMSprop()
+    loss = MeanSquaredError()
     model.compile(optimizer=opt, loss=loss)
+
+    history = model.fit_generator(generator=gen_train, validation_data=gen_valid, epochs=6)
+
     tag = datetime.now().strftime("%d-%b-%Y-%H-%M-%S")
+    plot_training_history(history, f'../pics/{Generator.__name__}_{model.name}___{tag}.png')
     save_model(model, tag)
-
-    history = model.fit(train_x, train_y, validation_data=(val_x, val_y), epochs=100, batch_size=32)
-
-    save_model(model, tag)
-    plot_training_history(history, f'../pics/{dataset_name}_{model.name}___{tag}.png')
 
 
 if __name__ == '__main__':

@@ -45,11 +45,11 @@ def tf_compact(transformation: tf.Tensor):
 
 
 def tf_rot_to_angle_axis(rot: tf.Tensor):
-    angle = tf.math.acos((tf.linalg.trace(rot) - 1.0) / 2)
+    angle = tf.math.acos((tf.linalg.trace(rot) - 1.0) / 2.0)
     angle_axis = (rot[:, 1, 2] - rot[:, 2, 1],
                   rot[:, 0, 2] - rot[:, 2, 0],
                   rot[:, 0, 1] - rot[:, 1, 0])
-    return tf.transpose(tf.convert_to_tensor(angle_axis)) * angle
+    return tf.transpose(tf.convert_to_tensor(angle_axis) * angle)
 
 
 def tf_dist_l2(t1: tf.Tensor, t2: tf.Tensor):
