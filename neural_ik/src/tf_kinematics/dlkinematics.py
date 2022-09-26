@@ -50,7 +50,7 @@ class DLKinematics:
 
     @property
     def dof(self):
-        return len(self.theta_indices)  # not fully correct
+        return len(self.get_chain(fixed=False, joints=True, links=False))
 
     def generate_chain_indices(self):
         theta_indices = list()

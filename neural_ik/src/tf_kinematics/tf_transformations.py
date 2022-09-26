@@ -41,15 +41,17 @@ def tf_homogeneous_transformation(sin, cos, translation):
 def tf_compact(transformation: tf.Tensor):
     trans = transformation[:, :3, 3]
     rot = transformation[:, :3, :3]
-    return tf.concat((trans, tf_rot_to_angle_axis(rot)), axis=-1)
+    angle_axis = tf_rot_to_angle_axis(rot)
+    return tf.concat((trans, angle_axis), axis=1)
 
 
 def tf_rot_to_angle_axis(rot: tf.Tensor):
-    angle = tf.math.acos((tf.linalg.trace(rot) - 1.0) / 2.0)
+    angle = tf.math.acos((tf.linalg.trace(rot[:]) - 1.0) / 2.0)
     angle_axis = (rot[:, 1, 2] - rot[:, 2, 1],
                   rot[:, 0, 2] - rot[:, 2, 0],
                   rot[:, 0, 1] - rot[:, 1, 0])
-    return tf.transpose(tf.convert_to_tensor(angle_axis) * angle)
+    angle_axis = tf.convert_to_tensor(angle_axis)
+    return tf.transpose(angle_axis, [1, 0]) * angle
 
 
 def tf_dist_l2(t1: tf.Tensor, t2: tf.Tensor):

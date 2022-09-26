@@ -9,7 +9,9 @@ from tf_kinematics.kinematic_models import kuka_robot
 
 
 if __name__ == '__main__':
-    kin = kuka_robot()
+    batch_size = 1
+    kin = kuka_robot(batch_size)
+
     model, thera_out = residual_fk_dnn(kin)
     model.summary()
 
@@ -17,7 +19,7 @@ if __name__ == '__main__':
     loss = MeanSquaredError()
     model.compile(optimizer=opt, loss=loss)
 
-    n = 5000
+    n = 500
     thetas_rnd_seed = []
     gammas = []
 
@@ -33,6 +35,6 @@ if __name__ == '__main__':
 
     y = tf.squeeze(tf.stack([tf.eye(4)] * n))
 
-    model.fit(x=[thetas_rnd_seed, gammas], y=y, epochs=10, batch_size=1)
+    model.fit(x=[thetas_rnd_seed, gammas], y=y, epochs=10, batch_size=batch_size)
 
 
