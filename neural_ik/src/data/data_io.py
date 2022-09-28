@@ -1,11 +1,41 @@
+import os
+import csv
+
 import numpy as np
+import tensorflow as tf
+
 from tqdm import tqdm
 from typing import Tuple, Iterable, Any
 
 from visual_kinematics import Frame
-
 from data.abstract_generator import FKGenerator
-import csv
+
+
+def zip_as_tf_dataset(x, y) -> tf.data.Dataset:
+    dx = tf.data.Dataset.from_tensor_slices(x)
+    dy = tf.data.Dataset.from_tensor_slices(y)
+    return tf.data.Dataset.zip((dx, dy))
+
+
+def load_as_tf_dataset(dataset_name: str) -> (tf.data.Dataset, tf.data.Dataset):
+    x_train, y_train, x_test, y_test = load_dataset(dataset_name)
+    return zip_as_tf_dataset(x_train, y_train), zip_as_tf_dataset(x_test, y_test)
+
+
+def load_dataset(dataset_name: str) -> ((np.ndarray, np.ndarray), (np.ndarray, np.ndarray)):
+    path_to_train, path_to_test = paths_to_dataset(dataset_name)
+    x_train, y_train = read(path_to_train)
+    x_test, y_test = read(path_to_test)
+    return x_train, y_train, x_test, y_test
+
+
+def paths_to_dataset(dataset_name: str) -> (str, str):
+    path_to_dataset = os.path.join(os.path.pardir, 'data', dataset_name)
+    if not os.path.exists(path_to_dataset):
+        os.makedirs(path_to_dataset)
+    path_to_train = os.path.join(path_to_dataset, 'train.csv')
+    path_to_test = os.path.join(path_to_dataset, 'test.csv')
+    return path_to_train, path_to_test
 
 
 def generate_to_file(generator: FKGenerator, path_to_file: str) -> None:

@@ -2,7 +2,7 @@ import numpy as np
 from tqdm import tqdm
 
 from data.abstract_generator import FKGenerator
-from data.dataset import frame_to_vec
+from data.data_io import frame_to_vec
 
 
 class RandomGen(FKGenerator):
