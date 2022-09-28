@@ -27,6 +27,27 @@ class RandomGen(FKGenerator):
         self._y = np.stack(self._y)
 
 
+class TFRandomGenWithSeed(FKGenerator):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def _generate(self):
+        self._x = []
+        self._y = []
+
+        mn = self._ws_lim[:, 0]
+        mx = self._ws_lim[:, 1]
+        for _ in tqdm(range(self._n)):
+            joint = np.random.rand(self._dof) * (mx - mn) + mn
+            cart_iso = self._robot.forward(joint)
+            cart = frame_to_vec(cart_iso)
+
+            self._x.append(cart)
+            self._y.append(joint)
+        self._x = np.stack(self._x)
+        self._y = np.stack(self._y)
+
+
 class JakGen(FKGenerator):
 
     def __init__(self, *args, **kwargs):

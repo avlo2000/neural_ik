@@ -1,6 +1,6 @@
 import numpy as np
 from tqdm import tqdm
-from typing import Tuple
+from typing import Tuple, Iterable, Any
 
 from visual_kinematics import Frame
 
@@ -9,27 +9,33 @@ import csv
 
 
 def generate_to_file(generator: FKGenerator, path_to_file: str) -> None:
-    file = open(path_to_file, 'w')
-    writer = csv.writer(file)
-
     feat_names = [f"x{str(i)}" for i in range(generator.input_dim)] + \
                  [f"y{str(i)}" for i in range(generator.output_dim)]
-    writer.writerow(feat_names)
+    raw_data = []
     for x_batch, y_batch in tqdm(generator):
         for x_sample, y_sample in zip(x_batch, y_batch):
-            writer.writerow(np.concatenate([x_sample, y_sample]))
+            raw_data.append(np.concatenate([x_sample, y_sample]))
+    write(feat_names, raw_data, path_to_file)
+
+
+def write(feat_names: Iterable[str], raw_data: Iterable[Iterable[Any]], path_to_file: str):
+    with open(path_to_file, 'w') as file:
+        writer = csv.writer(file)
+        writer.writerow(feat_names)
+        for row in raw_data:
+            writer.writerow(row)
 
 
 def read(path_to_file: str) -> Tuple[list, list]:
-    file = open(path_to_file, 'r')
-    reader = csv.DictReader(file)
+    with open(path_to_file, 'r') as file:
+        reader = csv.DictReader(file)
 
-    feat_names = next(reader)
-    x = []
-    y = []
-    for row in reader:
-        x.append(np.asarray([float(row[feat]) for feat in feat_names if feat.startswith('x')]))
-        y.append(np.asarray([float(row[feat]) for feat in feat_names if feat.startswith('y')]))
+        feat_names = next(reader)
+        x = []
+        y = []
+        for row in reader:
+            x.append(np.asarray([float(row[feat]) for feat in feat_names if feat.startswith('x')]))
+            y.append(np.asarray([float(row[feat]) for feat in feat_names if feat.startswith('y')]))
     return x, y
 
 

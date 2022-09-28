@@ -34,8 +34,7 @@ class TestEvaluate(TestCase):
 
         self.assertEqual(report.total, reachable + nones)
         self.assertEqual(report.found, reachable)
-        self.assertTrue((report.losses > 0).all())
-        self.assertTrue(report.losses.sum() > 0)
+        self.assertTrue((report.losses == 0.).all())
         self.assertTrue((report.times > 0).all())
 
     def test_evaluate_report_has_correct_repr(self):

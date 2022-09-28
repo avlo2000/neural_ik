@@ -59,7 +59,7 @@ class TestNewtonIter(TestCase):
 
     def test_converge(self):
         kin = kuka_robot(1)
-        layer = NewtonIter(kin)
+        layer = NewtonIter(kin, return_diff=False)
         theta_expected = tf.random.uniform(shape=(1, kin.dof))
         gamma_expected = tf_compact(kin.forward(tf.reshape(theta_expected, [-1])))
         theta = theta_expected + tf.random.uniform(shape=(1, kin.dof)) * 0.1

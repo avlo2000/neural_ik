@@ -11,6 +11,7 @@ Matrix([
 """
 
 
+@tf.function
 def tf_homogeneous_transformation(sin, cos, translation):
     sx, sy, sz = tf.unstack(sin, num=3, axis=-1)
     cx, cy, cz = tf.unstack(cos, num=3, axis=-1)
@@ -38,6 +39,7 @@ def tf_homogeneous_transformation(sin, cos, translation):
     return tf.reshape(transformation_matrix, shape=output_shape)
 
 
+@tf.function
 def tf_compact(transformation: tf.Tensor):
     trans = transformation[:, :3, 3]
     rot = transformation[:, :3, :3]
@@ -45,6 +47,7 @@ def tf_compact(transformation: tf.Tensor):
     return tf.concat((trans, angle_axis), axis=1)
 
 
+@tf.function
 def tf_rot_to_angle_axis(rot: tf.Tensor):
     angle = tf.math.acos((tf.linalg.trace(rot[:]) - 1.0) / 2.0)
     angle_axis = (rot[:, 1, 2] - rot[:, 2, 1],
@@ -54,6 +57,7 @@ def tf_rot_to_angle_axis(rot: tf.Tensor):
     return tf.transpose(angle_axis, [1, 0]) * angle
 
 
+@tf.function
 def tf_dist_l2(t1: tf.Tensor, t2: tf.Tensor):
     diff = tf.matmul(tf.linalg.inv(t1), t2)
     return tf.norm(diff)

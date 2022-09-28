@@ -2,7 +2,8 @@ import tensorflow as tf
 from keras.losses import MeanSquaredError
 from tqdm import tqdm
 
-from neural_ik.models import residual_fk_dnn
+from neural_ik.models.residual_fk_dnn import residual_fk_dnn
+from neural_ik.models.residual_newton_iter_dnn import residual_newton_iter_dnn
 
 
 from tf_kinematics.kinematic_models import kuka_robot
@@ -12,7 +13,7 @@ if __name__ == '__main__':
     batch_size = 1
     kin = kuka_robot(batch_size)
 
-    model, thera_out = residual_fk_dnn(kin)
+    model, thera_out = residual_newton_iter_dnn(kin, 5, 20)
     model.summary()
 
     opt = tf.keras.optimizers.RMSprop()

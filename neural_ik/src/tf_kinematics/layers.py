@@ -78,17 +78,18 @@ class NewtonIter(Layer):
         self.__return_diff = return_diff
         super(NewtonIter, self).__init__(**kwargs)
 
-    def call(self, inputs, **kwargs) -> tf.Tensor:
+    def call(self, inputs: (tf.Tensor, tf.Tensor), **kwargs) -> tf.Tensor:
         gamma_expected, thetas = inputs
         jac, gamma_actual = fk_and_jacobian(thetas, self.__kernel)
         jac_pinv = tf.linalg.pinv(jac)
-        gamma_diff = (gamma_expected - gamma_actual)
-        d_thetas = tf.squeeze(tf.matmul(jac_pinv, gamma_diff, transpose_b=True))
+        gamma_diff = tf.reshape(gamma_expected - gamma_actual, shape=(-1, 6, 1))
+        d_thetas = tf.linalg.matmul(jac_pinv, gamma_diff)
+        d_thetas = tf.squeeze(d_thetas, axis=2)
         if self.__return_diff:
             return d_thetas * self.__learning_rate
         return thetas + d_thetas * self.__learning_rate
 
-    def compute_output_shape(self, input_shape):
+    def compute_output_shape(self, input_shape: tf.TensorShape):
         return input_shape[0], self.__kernel.dof
 
     @property

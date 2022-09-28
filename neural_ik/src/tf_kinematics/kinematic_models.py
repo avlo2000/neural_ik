@@ -9,3 +9,12 @@ def kuka_robot(batch_size: int):
     chain = chain_from_urdf_file(path_to_urdf)
     kinematics = DLKinematics(chain, from_link, to_link, batch_size=batch_size)
     return kinematics
+
+
+def human_robot(batch_size: int):
+    path_to_urdf = r'C:\Users\Pavlo\source\repos\math\neural_ik\urdf\human.urdf'
+    from_link = 'human_base'
+    to_link = 'human_right_hand'
+    chain = chain_from_urdf_file(path_to_urdf)
+    kinematics = DLKinematics(chain, from_link, to_link, batch_size=batch_size)
+    return kinematics
