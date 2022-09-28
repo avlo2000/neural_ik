@@ -60,13 +60,13 @@ class TestNewtonIter(TestCase):
     def test_converge(self):
         kin = kuka_robot(1)
         layer = NewtonIter(kin, return_diff=False)
-        theta_expected = tf.random.uniform(shape=(1, kin.dof))
+        theta_expected = tf.zeros(shape=(1, kin.dof))
         gamma_expected = tf_compact(kin.forward(tf.reshape(theta_expected, [-1])))
-        theta = theta_expected + tf.random.uniform(shape=(1, kin.dof)) * 0.1
+        theta_seed = theta_expected + tf.ones(shape=(1, kin.dof)) * 0.1
         losses = []
         for _ in range(5):
-            theta = layer.call([gamma_expected, theta])
-            losses.append(float(tf.linalg.norm(theta - theta_expected)))
+            theta_seed = layer.call([gamma_expected, theta_seed])
+            losses.append(float(tf.linalg.norm(theta_seed - theta_expected)))
         self.assertTrue(all(a >= b for a, b in zip(losses, losses[1:])))
 
 

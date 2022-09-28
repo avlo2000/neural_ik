@@ -37,12 +37,3 @@ class TestEvaluate(TestCase):
         self.assertTrue((report.losses == 0.).all())
         self.assertTrue((report.times > 0).all())
 
-    def test_evaluate_report_has_correct_repr(self):
-        report = EvaluateReport(100, 50, np.ones(100), np.ones(100))
-        self.assertEqual(dataclasses.asdict(report),
-                         {
-                             'found': 100,
-                             'total': 50,
-                             'average_time': np.ones(100),
-                             'average_loss': np.ones(100)
-                         })

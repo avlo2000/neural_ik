@@ -5,8 +5,9 @@ import numpy as np
 import tensorflow as tf
 
 from tqdm import tqdm
-from typing import Tuple, Iterable, Any
+from typing import Tuple, Iterable, Any, TextIO
 
+from typing.io import IO
 from visual_kinematics import Frame
 from data.abstract_generator import FKGenerator
 
@@ -24,8 +25,10 @@ def load_as_tf_dataset(dataset_name: str) -> (tf.data.Dataset, tf.data.Dataset):
 
 def load_dataset(dataset_name: str) -> ((np.ndarray, np.ndarray), (np.ndarray, np.ndarray)):
     path_to_train, path_to_test = paths_to_dataset(dataset_name)
-    x_train, y_train = read(path_to_train)
-    x_test, y_test = read(path_to_test)
+    with open(path_to_train) as file:
+        x_train, y_train = read(file)
+    with open(path_to_test) as file:
+        x_test, y_test = read(file)
     return x_train, y_train, x_test, y_test
 
 
@@ -45,28 +48,25 @@ def generate_to_file(generator: FKGenerator, path_to_file: str) -> None:
     for x_batch, y_batch in tqdm(generator):
         for x_sample, y_sample in zip(x_batch, y_batch):
             raw_data.append(np.concatenate([x_sample, y_sample]))
-    write(feat_names, raw_data, path_to_file)
-
-
-def write(feat_names: Iterable[str], raw_data: Iterable[Iterable[Any]], path_to_file: str):
     with open(path_to_file, 'w') as file:
-        writer = csv.writer(file)
-        writer.writerow(feat_names)
-        for row in raw_data:
-            writer.writerow(row)
+        write(feat_names, raw_data, file)
 
 
-def read(path_to_file: str) -> Tuple[list, list]:
-    with open(path_to_file, 'r') as file:
-        reader = csv.DictReader(file)
+def write(feat_names: Iterable[str], raw_data: Iterable[Iterable[Any]], file: TextIO):
+    writer = csv.writer(file)
+    writer.writerow(feat_names)
+    for row in raw_data:
+        writer.writerow(row)
 
-        feat_names = next(reader)
-        x = []
-        y = []
-        for row in reader:
-            x.append(np.asarray([float(row[feat]) for feat in feat_names if feat.startswith('x')]))
-            y.append(np.asarray([float(row[feat]) for feat in feat_names if feat.startswith('y')]))
-    return x, y
+
+def read(file: TextIO) -> (Iterable[str], Iterable[Iterable[Any]]):
+    reader = csv.DictReader(file)
+
+    feat_names = reader.fieldnames
+    raw_data = []
+    for row in reader:
+        raw_data.append([float(row[feat]) for feat in feat_names])
+    return feat_names, raw_data
 
 
 def vec_to_frame(vec: np.ndarray) -> Frame:

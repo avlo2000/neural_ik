@@ -13,14 +13,16 @@ class TestEvaluate(TestCase):
         self.eps = 0.0001
 
     def test_frame_to_vec_transitivity(self):
-        frame = Frame.from_r_3(np.random.rand(3), np.random.rand(3, 1))
+        frame = Frame.from_r_3([0.30369251, 0.68088033, 0.98290186], [[0.56932648],
+                                                                      [0.39061527],
+                                                                      [0.0554877]])
         vec = frame_to_vec(frame)
         frame_back = vec_to_frame(vec)
 
         self.assertTrue(frame.distance_to(frame_back) <= self.eps)
 
     def test_vec_to_frame_transitivity(self):
-        vec = np.random.rand(7)
+        vec = np.asarray([0.15180924, 0.56683175, 0.34126947, 0.00432348, 0.6785767,  0.55012793, 0.76428717])
         frame = vec_to_frame(vec)
         vec_back = frame_to_vec(frame)
 

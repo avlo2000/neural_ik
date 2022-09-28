@@ -54,7 +54,7 @@ def tf_rot_to_angle_axis(rot: tf.Tensor):
                   rot[:, 0, 2] - rot[:, 2, 0],
                   rot[:, 0, 1] - rot[:, 1, 0])
     angle_axis = tf.convert_to_tensor(angle_axis)
-    return tf.transpose(angle_axis, [1, 0]) * angle
+    return tf.transpose(angle_axis, [1, 0]) * tf.expand_dims(angle, axis=-1)
 
 
 @tf.function

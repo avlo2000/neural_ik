@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+from typing import Iterable
+
 import tensorflow as tf
 import numpy as np
 
@@ -51,6 +53,12 @@ class DLKinematics:
     @property
     def dof(self):
         return len(self.get_chain(fixed=False, joints=True, links=False))
+
+    @property
+    def limits(self):
+        chain = self.get_chain(fixed=False, joints=True, links=False)
+        limits = [joint.limit for joint in chain]
+        return tf.stack(limits, axis=1)
 
     def generate_chain_indices(self):
         theta_indices = list()
@@ -123,8 +131,7 @@ class Joint:
     @property
     def limit(self):
         # @ToDo Set Joint limits to 0.0 if the joint is continious
-        # return tf.constant(np.array([self.limit.lower, self.limit.upper]))
-        return tf.constant([self.limit.lower, self.limit.upper], dtype=tf.float32)
+        return tf.constant([self.joint.limit.lower, self.joint.limit.upper], dtype=tf.float32)
 
     @property
     def offset(self):

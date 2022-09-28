@@ -1,42 +1,41 @@
-import numpy as np
 import tensorflow as tf
+from keras.losses import MeanSquaredError
+from tqdm import tqdm
 
-from neural_ik.models import converging_dnn, simple_dnn
-from data.generators import TrjGen, RandomGen
-from neural_ik.visual import plot_training_history
-from neural_ik.losses import DualQuatMormLoss
-from data.robots import arm6dof
-from datetime import datetime
-from keras.metrics import MeanSquaredError
-
-Generator = RandomGen
+from neural_ik.models.residual_fk_dnn import residual_fk_dnn
+from neural_ik.models.residual_newton_iter_dnn import residual_newton_iter_dnn
 
 
-def save_model(model, tag):
-    model.save(f'./models/{model.name}___{tag}.hdf5')
+from tf_kinematics.kinematic_models import kuka_robot
 
 
-def main():
-    robot = arm6dof()
-    dof = robot.num_axis
-    ws_lim = np.zeros((dof, 2), dtype=np.float32)
-    ws_lim[:, 1] = [np.pi] * dof
-    ws_lim[:, 0] = [-np.pi] * dof
+if __name__ == '__main__':
+    batch_size = 1
+    kin = kuka_robot(batch_size)
 
-    gen_train = Generator(batch_size=32, robot=robot, n=100)
-    gen_valid = Generator(batch_size=32, robot=robot, n=100)
-    model = simple_dnn(6, gen_train.output_dim)
+    model, thera_out = residual_newton_iter_dnn(kin, 5, 20)
+    model.summary()
 
     opt = tf.keras.optimizers.RMSprop()
     loss = MeanSquaredError()
     model.compile(optimizer=opt, loss=loss)
 
-    history = model.fit_generator(generator=gen_train, validation_data=gen_valid, epochs=6)
+    n = 500
+    thetas_rnd_seed = []
+    gammas = []
 
-    tag = datetime.now().strftime("%d-%b-%Y-%H-%M-%S")
-    plot_training_history(history, f'../pics/{Generator.__name__}_{model.name}___{tag}.png')
-    save_model(model, tag)
+    for _ in tqdm(range(n)):
+        theta_rnd_seed = tf.random.uniform(shape=(1, kin.dof))
+        theta_rnd = tf.random.uniform(shape=(1, kin.dof))
+        gamma = kin.forward(tf.reshape(theta_rnd, [-1]))
+
+        thetas_rnd_seed.append(theta_rnd_seed)
+        gammas.append(gamma)
+    thetas_rnd_seed = tf.squeeze(tf.stack(thetas_rnd_seed))
+    gammas = tf.squeeze(tf.stack(gammas))
+
+    y = tf.squeeze(tf.stack([tf.eye(4)] * n))
+
+    model.fit(x=[thetas_rnd_seed, gammas], y=y, epochs=10, batch_size=batch_size)
 
 
-if __name__ == '__main__':
-    main()
