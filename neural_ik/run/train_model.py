@@ -4,7 +4,7 @@ import tensorflow as tf
 from neural_ik.models import converging_dnn, simple_dnn
 from data.generators import TrjGen, RandomGen
 from neural_ik.visual import plot_training_history
-from neural_ik.loss_functions import DualQuatMormLoss
+from neural_ik.losses import DualQuatMormLoss
 from data.robots import arm6dof
 from datetime import datetime
 from keras.metrics import MeanSquaredError
