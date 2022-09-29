@@ -16,6 +16,15 @@ def fk_and_jacobian(thetas: tf.Tensor, kernel: DLKinematics) -> (tf.Tensor, tf.T
     return jac, gamma
 
 
+@tf.function
+def newton_iter(jac: tf.Tensor, gamma_expected: tf.Tensor, gamma_actual: tf.Tensor) -> tf.Tensor:
+    jac_pinv = tf.linalg.pinv(jac)
+    gamma_diff = tf.reshape(gamma_expected - gamma_actual, shape=(-1, 6, 1))
+    d_thetas = tf.linalg.matmul(jac_pinv, gamma_diff)
+    d_thetas = tf.squeeze(d_thetas, axis=2)
+    return d_thetas
+
+
 class ForwardKinematics(Layer):
     def __init__(self, kernel: DLKinematics, **kwargs):
         self.batch_size = kernel.batch_size
@@ -44,6 +53,22 @@ class IsometryInverse(Layer):
 
     def compute_output_shape(self, input_shape):
         return input_shape[0], 4, 4
+
+
+class IsometryWeightedL2Norm(Layer):
+    def __init__(self, translation_weight: float, rotation_weight: float, **kwargs):
+        self.__translation_weight = translation_weight
+        self.__rotation_weight = rotation_weight
+        super(IsometryWeightedL2Norm, self).__init__(**kwargs)
+
+    def call(self, iso, **kwargs):
+        compact = tf_compact(iso)
+        tr_norm = tf.linalg.norm(compact[..., :3], axis=1)
+        rot_norm = tf.linalg.norm(compact[..., 3:], axis=1)
+        return tr_norm * self.__translation_weight + rot_norm * self.__rotation_weight
+
+    def compute_output_shape(self, input_shape):
+        return input_shape[0], 1
 
 
 class IsometryCompact(Layer):
@@ -81,10 +106,7 @@ class NewtonIter(Layer):
     def call(self, inputs: (tf.Tensor, tf.Tensor), **kwargs) -> tf.Tensor:
         gamma_expected, thetas = inputs
         jac, gamma_actual = fk_and_jacobian(thetas, self.__kernel)
-        jac_pinv = tf.linalg.pinv(jac)
-        gamma_diff = tf.reshape(gamma_expected - gamma_actual, shape=(-1, 6, 1))
-        d_thetas = tf.linalg.matmul(jac_pinv, gamma_diff)
-        d_thetas = tf.squeeze(d_thetas, axis=2)
+        d_thetas = newton_iter(jac, gamma_expected, gamma_actual)
         if self.__return_diff:
             return d_thetas * self.__learning_rate
         return thetas + d_thetas * self.__learning_rate

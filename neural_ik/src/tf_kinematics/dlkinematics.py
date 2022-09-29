@@ -94,6 +94,7 @@ class DLKinematics:
             self.base_link, self.end_link, joints, fixed, links)
         return [Joint(self.urdf.joint_map.get(x)) for x in t]
 
+    @tf.function
     def forward(self, thetas):
         thetas = tf.cast(thetas, tf.float32)
 
