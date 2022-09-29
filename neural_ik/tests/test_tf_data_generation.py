@@ -1,7 +1,7 @@
 from unittest import TestCase
 import tempfile
 
-from data.data_io import write, read
+from data.data_io import write_csv, read_csv
 from data.tf_kin_data import generate_with_theta_seed, rawdata_to_dataset
 from tf_kinematics import kinematic_models
 
@@ -15,9 +15,9 @@ class Test(TestCase):
         feature_names, raw_data = generate_with_theta_seed(kin, size, seed_multiplier)
 
         tmp = tempfile.TemporaryFile('w+t')
-        write(feature_names, raw_data, tmp)
+        write_csv(feature_names, raw_data, tmp)
         tmp.seek(0)
-        feature_names_read, raw_data_read = read(tmp)
+        feature_names_read, raw_data_read = read_csv(tmp)
         tmp.close()
         self.assertEqual(feature_names, feature_names_read)
         for raw in raw_data_read:

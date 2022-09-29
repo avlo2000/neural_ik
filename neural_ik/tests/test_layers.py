@@ -90,7 +90,7 @@ class TestIsometryWeightedL2Norm(TestCase):
         layer = IsometryWeightedL2Norm(1.0, 1.0)
         test_iso = tf.stack([tf.eye(4)] * 16)
         res = layer.call(test_iso)
-        self.assertEqual(res.shape, (16, ))
+        self.assertEqual(res.shape, (16, 1))
         self.assertTrue(all((res == 0.0).numpy()))
 
     def test_call_batch1(self):
@@ -101,5 +101,5 @@ class TestIsometryWeightedL2Norm(TestCase):
                                          0, 0, 0, 1], dtype=tf.float32)
         test_iso = tf.reshape(test_iso, shape=(1, 4, 4))
         res = layer.call(test_iso)
-        self.assertEqual(res.shape, (1, ))
+        self.assertEqual(res.shape, (1, 1))
         self.assertEqual(res, 1.0)

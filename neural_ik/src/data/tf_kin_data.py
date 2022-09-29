@@ -1,3 +1,4 @@
+import os
 from itertools import product
 from typing import Iterable, Any
 from tqdm import tqdm
@@ -24,8 +25,6 @@ def rawdata_to_dataset(kin: DLKinematics, feat_names: Iterable[str], raw_data: I
         thetas.append(tf.convert_to_tensor(sample[:kin.dof]))
         thetas_seed.append(tf.convert_to_tensor(sample[kin.dof:2*kin.dof]))
         iso_transforms.append(tf.reshape(tf.convert_to_tensor(sample[2*kin.dof:]), shape=(4, 4)))
-
-        tf.assert_equal(iso_transforms[-1], kin.forward(tf.reshape(thetas[-1], [-1])))
 
     thetas = tf.squeeze(tf.stack(thetas))
     thetas_seed = tf.squeeze(tf.stack(thetas_seed))

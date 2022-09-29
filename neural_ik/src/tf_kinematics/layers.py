@@ -65,7 +65,7 @@ class IsometryWeightedL2Norm(Layer):
         compact = tf_compact(iso)
         tr_norm = tf.linalg.norm(compact[..., :3], axis=1)
         rot_norm = tf.linalg.norm(compact[..., 3:], axis=1)
-        return tr_norm * self.__translation_weight + rot_norm * self.__rotation_weight
+        return tf.expand_dims(tr_norm * self.__translation_weight + rot_norm * self.__rotation_weight, axis=-1)
 
     def compute_output_shape(self, input_shape):
         return input_shape[0], 1

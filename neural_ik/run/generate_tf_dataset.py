@@ -1,4 +1,4 @@
-from data.data_io import write
+from data.data_io import write_csv
 from data.tf_kin_data import generate_with_theta_seed
 from tf_kinematics import kinematic_models
 
@@ -10,7 +10,7 @@ def main():
 
     feature_names, raw_data = generate_with_theta_seed(kin, size, seed_multiplier)
     with open(r'C:\Users\Pavlo\source\repos\math\neural_ik\data\omnipointer_train_10k.csv', 'w') as file:
-        write(feature_names, raw_data, file)
+        write_csv(feature_names, raw_data, file)
 
 
 if __name__ == '__main__':

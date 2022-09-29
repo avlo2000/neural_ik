@@ -1,9 +1,16 @@
 import math
 
-from visual_kinematics.RobotSerial import RobotSerial
-from core.evaluate_metrics import distance_as_dual_quat_norm
 from keras.losses import Loss
 import tensorflow as tf
+
+
+@tf.function
+def exp_weighted_mse(y_true: tf.Tensor, y_pred: tf.Tensor):
+    n = y_true.shape[1]
+    weights = tf.range(0, n, dtype=y_true.dtype)
+    diff_square = tf.square(y_true - y_pred)
+    weighted_diff = tf.multiply(tf.exp(-weights), diff_square)
+    return tf.reduce_sum(weighted_diff, axis=1) / n
 
 
 class ExpWeightedMSE(Loss):

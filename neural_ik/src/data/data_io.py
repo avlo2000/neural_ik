@@ -26,9 +26,9 @@ def load_as_tf_dataset(dataset_name: str) -> (tf.data.Dataset, tf.data.Dataset):
 def load_dataset(dataset_name: str) -> ((np.ndarray, np.ndarray), (np.ndarray, np.ndarray)):
     path_to_train, path_to_test = paths_to_dataset(dataset_name)
     with open(path_to_train) as file:
-        x_train, y_train = read(file)
+        x_train, y_train = read_csv(file)
     with open(path_to_test) as file:
-        x_test, y_test = read(file)
+        x_test, y_test = read_csv(file)
     return x_train, y_train, x_test, y_test
 
 
@@ -49,17 +49,17 @@ def generate_to_file(generator: FKGenerator, path_to_file: str) -> None:
         for x_sample, y_sample in zip(x_batch, y_batch):
             raw_data.append(np.concatenate([x_sample, y_sample]))
     with open(path_to_file, 'w') as file:
-        write(feat_names, raw_data, file)
+        write_csv(feat_names, raw_data, file)
 
 
-def write(feat_names: Iterable[str], raw_data: Iterable[Iterable[Any]], file: TextIO):
+def write_csv(feat_names: Iterable[str], raw_data: Iterable[Iterable[Any]], file: TextIO):
     writer = csv.writer(file)
     writer.writerow(feat_names)
     for row in raw_data:
         writer.writerow(row)
 
 
-def read(file: TextIO) -> (Iterable[str], Iterable[Iterable[Any]]):
+def read_csv(file: TextIO) -> (Iterable[str], Iterable[Iterable[Any]]):
     reader = csv.DictReader(file)
 
     feat_names = reader.fieldnames
