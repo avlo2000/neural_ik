@@ -4,7 +4,7 @@ import tensorflow as tf
 from keras import layers
 from keras import Model
 from tf_kinematics.dlkinematics import DLKinematics
-from tf_kinematics.layers import IsometryCompact, IsometryInverse, NewtonIter
+from tf_kinematics.kin_layers import IsometryCompact, IsometryInverse, NewtonIter
 from neural_ik.models.common import fk_theta_iters_dist
 
 

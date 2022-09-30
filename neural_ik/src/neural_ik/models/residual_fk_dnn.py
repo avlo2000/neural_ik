@@ -4,7 +4,7 @@ from keras import Model
 
 from neural_ik.models.common import fk_theta_iters_dist
 from tf_kinematics.dlkinematics import DLKinematics
-from tf_kinematics.layers import ForwardKinematics, IsometryCompact, IsometryInverse
+from tf_kinematics.kin_layers import ForwardKinematics, IsometryCompact, IsometryInverse
 
 
 def residual_fk_dnn(kin: DLKinematics, blocks_count: int, corrector_units: int) -> (Model, layers.Layer):

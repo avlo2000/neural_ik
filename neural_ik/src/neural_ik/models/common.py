@@ -1,7 +1,7 @@
 from typing import Iterable
 from keras import layers
 from tf_kinematics.dlkinematics import DLKinematics
-from tf_kinematics.layers import ForwardKinematics, IsometryWeightedL2Norm, IsometryInverse
+from tf_kinematics.kin_layers import ForwardKinematics, IsometryWeightedL2Norm, IsometryInverse
 
 
 LayerList = Iterable[layers.Layer]
