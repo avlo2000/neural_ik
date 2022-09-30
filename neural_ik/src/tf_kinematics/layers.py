@@ -25,9 +25,23 @@ def newton_iter(jac: tf.Tensor, gamma_expected: tf.Tensor, gamma_actual: tf.Tens
     return d_thetas
 
 
+class _KinematicLayer(Layer):
+    def __init__(self, kernel: DLKinematics, **kwargs):
+        self._kernel = kernel
+        super(_KinematicLayer, self).__init__(**kwargs)
+
+    def get_config(self):
+        config = super(_KinematicLayer, self).get_config()
+        config.update()
+        pass
+
+    @classmethod
+    def from_config(cls, config):
+        pass
+
+
 class ForwardKinematics(Layer):
     def __init__(self, kernel: DLKinematics, **kwargs):
-        self.batch_size = kernel.batch_size
         self.kernel = kernel
         super(ForwardKinematics, self).__init__(**kwargs)
 
