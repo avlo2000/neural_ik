@@ -39,7 +39,7 @@ def human_robot(batch_size: int) -> DLKinematics:
 
 @kinematic_model
 def omnipointer_robot(batch_size: int) -> DLKinematics:
-    path_to_urdf = PATH_TO_URDF/'/omnipointer.urdf'
+    path_to_urdf = PATH_TO_URDF/'omnipointer.urdf'
     from_link = 'base_link'
     to_link = 'arm_link_5'
     chain = chain_from_urdf_file(path_to_urdf)

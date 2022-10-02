@@ -10,7 +10,7 @@ from tf_kinematics.solver import solve_static, solve_forward
 
 
 class DLKinematics:
-    def __init__(self, urdf, base_link, end_link, batch_size=1, debug=False):
+    def __init__(self, urdf: Robot, base_link, end_link, batch_size=1, debug=False):
         self.debug = debug
         if not isinstance(urdf, Robot):
             raise DLKinematicsError(
@@ -19,20 +19,18 @@ class DLKinematics:
         self.urdf = urdf
         self.link_names = [link.name for link in urdf.links]
         self.batch_size = batch_size
+        self.model_name = urdf.name
 
         if base_link not in self.link_names:
-            raise DLKinematicsError(
-                'Link "{0}" not in {1}'.format(base_link, self.link_names))
+            raise DLKinematicsError('Link "{0}" not in {1}'.format(base_link, self.link_names))
 
         if end_link not in self.link_names:
-            raise DLKinematicsError(
-                'Link "{0}" not in {1}'.format(end_link, self.link_names))
+            raise DLKinematicsError('Link "{0}" not in {1}'.format(end_link, self.link_names))
 
         self.base_link = base_link
         self.end_link = end_link
 
-        chain = urdf.get_chain(base_link, end_link,
-                               joints=True, links=False, fixed=True)
+        chain = urdf.get_chain(base_link, end_link, joints=True, links=False, fixed=True)
         self._chain = [Joint(urdf.joint_map.get(x)) for x in chain]
 
         self.theta_indices = self.generate_chain_indices()

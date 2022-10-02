@@ -1,8 +1,7 @@
 from unittest import TestCase
 
-from tf_kinematics.kinematic_models import kuka_robot
-from tf_kinematics.kin_layers import ForwardKinematics, JacobianForwardKinematics, NewtonIter
-
+from tf_kinematics.kinematic_models import load
+from tf_kinematics.kin_layers import ForwardKinematics, JacobianForwardKinematics, NewtonIter, LimitsLerp
 
 import tensorflow as tf
 
@@ -53,7 +52,7 @@ class TestNewtonIter(TestCase):
         self.assertEqual(res.shape, (3, 7))
 
     def test_converge(self):
-        kin = kuka_robot(1)
+        kin = load('kuka_robot', 1)
         layer = NewtonIter("kuka_robot", 1, return_diff=False)
         theta_expected = tf.zeros(shape=(1, kin.dof))
         gamma_expected = tf_compact(kin.forward(tf.reshape(theta_expected, [-1])))
@@ -64,3 +63,17 @@ class TestNewtonIter(TestCase):
             losses.append(float(tf.linalg.norm(theta_seed - theta_expected)))
         self.assertTrue(all(a >= b for a, b in zip(losses, losses[1:])))
 
+
+class TestLimitsLerp(TestCase):
+    def test_call_batch3(self):
+        kin = load("kuka_robot", 3)
+        layer = LimitsLerp(0, 1, "kuka_robot", 3)
+
+        theta0 = tf.zeros(shape=(3, 7))
+        lerped0 = layer.call(theta0)
+
+        theta1 = tf.ones(shape=(3, 7))
+        lerped1 = layer.call(theta1)
+
+        self.assertTrue(tf.equal(kin.limits[1], lerped1).numpy().all())
+        self.assertTrue(tf.equal(kin.limits[0], lerped0).numpy().all())

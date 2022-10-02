@@ -8,7 +8,7 @@ from tf_kinematics import kinematic_models
 
 class Test(TestCase):
     def test_generate_with_theta_seed(self):
-        kin = kinematic_models.kuka_robot(1)
+        kin = kinematic_models.load('kuka_robot', 1)
         size = 100
         seed_multiplier = 0.1
 
@@ -25,7 +25,7 @@ class Test(TestCase):
         self.assertEqual(len(raw_data), len(raw_data_read))
 
     def test_rawdata_to_dataset(self):
-        kin = kinematic_models.kuka_robot(1)
+        kin = kinematic_models.load('kuka_robot', 1)
         size = 100
         seed_multiplier = 0.1
 

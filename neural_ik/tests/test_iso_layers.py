@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from tf_kinematics.iso_layers import IsometryCompact, IsometryWeightedL2Norm
+from tf_kinematics.iso_layers import IsometryCompact, CompactL2Norm, CompactL1Norm, IsometryMul
 import tensorflow as tf
 
 
@@ -18,21 +18,51 @@ class TestIsometryCompact(TestCase):
         self.assertEqual(res.shape, (1, 6))
 
 
-class TestIsometryWeightedL2Norm(TestCase):
+class TestCompactL2Norm(TestCase):
     def test_call_batch16(self):
-        layer = IsometryWeightedL2Norm(1.0, 1.0)
-        test_iso = tf.stack([tf.eye(4)] * 16)
-        res = layer.call(test_iso)
-        self.assertEqual(res.shape, (16, 1))
+        batch_size = 16
+        layer = CompactL2Norm(1.0, 1.0)
+        test_compact = tf.constant([0] * batch_size * 6, dtype=tf.float32, shape=(batch_size, 6))
+        res = layer.call(test_compact)
+        self.assertEqual(res.shape, (batch_size, 1))
         self.assertTrue(all((res == 0.0).numpy()))
 
     def test_call_batch1(self):
-        layer = IsometryWeightedL2Norm(1.0, 1.0)
-        test_iso = tf.convert_to_tensor([1, 0, 0, 1,
-                                         0, 1, 0, 0,
-                                         0, 0, 1, 0,
-                                         0, 0, 0, 1], dtype=tf.float32)
-        test_iso = tf.reshape(test_iso, shape=(1, 4, 4))
-        res = layer.call(test_iso)
-        self.assertEqual(res.shape, (1, 1))
-        self.assertEqual(res, 1.0)
+        batch_size = 1
+        layer = CompactL2Norm(1.0, 1.0)
+        test_compact = tf.constant([0] * batch_size * 6, dtype=tf.float32, shape=(batch_size, 6))
+        res = layer.call(test_compact)
+        self.assertEqual(res.shape, (batch_size, 1))
+        self.assertTrue(all((res == 0.0).numpy()))
+
+
+class TestCompactL1Norm(TestCase):
+    def test_call_batch16(self):
+        batch_size = 16
+        layer = CompactL1Norm(1.0, 1.0)
+        test_compact = tf.constant([0] * batch_size * 6, dtype=tf.float32, shape=(batch_size, 6))
+        res = layer.call(test_compact)
+        self.assertEqual(res.shape, (batch_size, 1))
+        self.assertTrue(all((res == 0.0).numpy()))
+
+    def test_call_batch1(self):
+        batch_size = 1
+        layer = CompactL1Norm(1.0, 1.0)
+        test_compact = tf.constant([0] * batch_size * 6, dtype=tf.float32, shape=(batch_size, 6))
+        res = layer.call(test_compact)
+        self.assertEqual(res.shape, (batch_size, 1))
+        self.assertTrue(all((res == 0.0).numpy()))
+
+
+class TestIsometryDiff(TestCase):
+    def test_call_batch16(self):
+        layer = IsometryMul()
+        test_iso = tf.stack([tf.eye(4)] * 16)
+        res = layer.call([test_iso, test_iso])
+        self.assertEqual(res.shape, (16, 4, 4))
+
+    def test_call_batch1(self):
+        layer = IsometryMul()
+        test_iso = tf.stack([tf.eye(4)])
+        res = layer.call([test_iso, test_iso])
+        self.assertEqual(res.shape, (1, 4, 4))

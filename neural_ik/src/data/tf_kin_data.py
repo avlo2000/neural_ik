@@ -26,6 +26,10 @@ def rawdata_to_dataset(kin: DLKinematics, feat_names: Iterable[str], raw_data: I
         thetas_seed.append(tf.convert_to_tensor(sample[kin.dof:2*kin.dof]))
         iso_transforms.append(tf.reshape(tf.convert_to_tensor(sample[2*kin.dof:]), shape=(4, 4)))
 
+        tf.debugging.check_numerics(thetas[-1], f"thetas has NaNs")
+        tf.debugging.check_numerics(thetas_seed[-1], f"thetas_seed has NaNs")
+        tf.debugging.check_numerics(iso_transforms[-1], f"iso_transforms has NaNs")
+
     thetas = tf.squeeze(tf.stack(thetas))
     thetas_seed = tf.squeeze(tf.stack(thetas_seed))
     iso_transforms = tf.squeeze(tf.stack(iso_transforms))
