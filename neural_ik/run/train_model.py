@@ -7,6 +7,7 @@ from data.tf_kin_data import rawdata_to_dataset
 from neural_ik.losses import PowWeightedMSE
 from neural_ik.metrics import last_one_abs, first_one_abs
 from neural_ik.models.residual_fk_dnn import residual_fk_dnn
+from neural_ik.models.residual_newton_iter_percept import residual_newton_iter_percept
 from neural_ik.visual import plot_training_history
 from tf_kinematics.kinematic_models import load
 
@@ -20,14 +21,12 @@ if __name__ == '__main__':
     kin_model = 'kuka_robot'
     kin = load(kin_model, batch_size)
 
-    blocks_count = 30
-    model_dist, model_ik = residual_fk_dnn(kin_model, batch_size, blocks_count=blocks_count, corrector_units=32)
-    model_dist.summary()
-
+    blocks_count = 16
+    model_dist, model_ik = residual_newton_iter_percept(kin_model, batch_size, blocks_count=blocks_count)
     opt = tf.keras.optimizers.RMSprop()
-    loss = PowWeightedMSE(base=1.5)
-
-    model_dist.compile(optimizer=opt, loss=loss, metrics=['mse', 'mae', last_one_abs, first_one_abs])
+    loss = PowWeightedMSE(base=2.7)
+    model_dist.compile(optimizer=opt, loss=loss, metrics=[last_one_abs, first_one_abs])
+    model_dist.summary()
 
     with open(PATH_TO_DATA / 'kuka_test_10k.csv', mode='r') as file:
         feature_names, raw_data = read_csv(file)

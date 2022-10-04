@@ -25,20 +25,16 @@ def rotation(angles):
 
 
 @tf.function
-def solve_forward(forward_matrices, thetas, theta_indices, thetas_shape, debug):
+def solve_forward(forward_matrices, thetas, theta_indices, thetas_shape):
     thetas = tf.scatter_nd(theta_indices, thetas, thetas_shape)
     sin = tf.math.sin(thetas[:, :, :3])
     cos = tf.math.cos(thetas[:, :, :3])
     translation = thetas[:, :, 3:]
-    transformation_matrices = tf_homogeneous_transformation(
-        sin, cos, translation)
+    transformation_matrices = tf_homogeneous_transformation(sin, cos, translation)
 
     transformation_matrices = tf.linalg.matmul(
         forward_matrices, transformation_matrices
     )
 
     r = tf.scan(lambda x, y: tf.linalg.matmul(x, y), transformation_matrices)
-    if debug:
-        return r
-    else:
-        return r[-1]
+    return r[-1]

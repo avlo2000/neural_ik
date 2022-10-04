@@ -8,12 +8,19 @@ from tf_kinematics.kinematic_models import load as load_kin
 
 @tf.function
 def fk_and_jacobian(thetas: tf.Tensor, kernel: DLKinematics) -> (tf.Tensor, tf.Tensor):
-    with tf.GradientTape() as g:
+    with tf.GradientTape(persistent=True) as g:
         g.watch(thetas)
         thetas_flat = tf.reshape(thetas, [-1])
+        tf.debugging.check_numerics(thetas_flat, f"fk_and_jacobian: {thetas_flat}")
+
         iso3d = kernel.forward(thetas_flat)
+        tf.debugging.check_numerics(iso3d, f"fk_and_jacobian: {iso3d}")
+
         gamma = tf_compact(iso3d)
+        tf.debugging.check_numerics(gamma, f"fk_and_jacobian: {gamma}")
     jac = g.batch_jacobian(gamma, thetas)
+    tf.debugging.check_numerics(jac, f"fk_and_jacobian: {jac}")
+
     return jac, gamma
 
 
@@ -82,28 +89,34 @@ class JacobianForwardKinematics(_KinematicLayer):
 
 @tf.keras.utils.register_keras_serializable()
 class NewtonIter(_KinematicLayer):
-    def __init__(self, kin_model_name: str, batch_size: int, return_diff: bool = True, learning_rate: float = 0.001,
-                 **kwargs):
-        self.__learning_rate = learning_rate
-        self.__return_diff = return_diff
+    def __init__(self, kin_model_name: str, batch_size: int, **kwargs):
         super(NewtonIter, self).__init__(kin_model_name, batch_size, **kwargs)
 
-    def call(self, inputs: (tf.Tensor, tf.Tensor), **kwargs) -> tf.Tensor:
+    def call(self, inputs: (tf.Tensor, tf.Tensor), **kwargs) -> (tf.Tensor, tf.Tensor):
         gamma_expected, thetas = inputs
+
         tf.debugging.check_numerics(gamma_expected, f"{self.name}: {gamma_expected}")
         tf.debugging.check_numerics(thetas, f"{self.name}: {thetas}")
+
         jac, gamma_actual = fk_and_jacobian(thetas, self._kernel)
-        d_thetas = newton_iter(jac, gamma_expected, gamma_actual)
-        if self.__return_diff:
-            return d_thetas * self.__learning_rate
-        return thetas + d_thetas * self.__learning_rate
+
+        tf.debugging.check_numerics(jac, f"{self.name}: {jac}")
+        tf.debugging.check_numerics(gamma_actual, f"{self.name}: {gamma_actual}")
+
+        jac_pinv = tf.stop_gradient(tf.linalg.pinv(jac))
+        gamma_diff = tf.reshape(gamma_expected - gamma_actual, shape=(-1, 6, 1))
+
+        tf.debugging.check_numerics(jac_pinv, f"{self.name}: {jac_pinv}")
+        tf.debugging.check_numerics(gamma_diff, f"{self.name}: {gamma_diff}")
+
+        d_thetas = tf.linalg.matmul(jac_pinv, gamma_diff)
+        d_thetas = tf.squeeze(d_thetas, axis=2)
+
+        tf.debugging.check_numerics(d_thetas, f"{self.name}: {d_thetas}")
+        return d_thetas, gamma_actual
 
     def compute_output_shape(self, input_shape: tf.TensorShape):
-        return input_shape[0], self.__kernel.dof
-
-    @property
-    def learning_rate(self):
-        return self.__learning_rate
+        return (input_shape[0], self.__kernel.dof), (input_shape[0], 6)
 
 
 @tf.keras.utils.register_keras_serializable()

@@ -2,7 +2,7 @@ import tensorflow as tf
 from keras import layers
 from keras import Model
 
-from neural_ik.models.common import fk_theta_iters_dist
+from neural_ik.models.common import theta_iters_dist
 from tf_kinematics.kinematic_models import load as load_kin
 from tf_kinematics.kin_layers import ForwardKinematics, LimitsLerp
 from tf_kinematics.iso_layers import IsometryCompact, IsometryMul, ArcCos, IsometryInverse
@@ -29,8 +29,7 @@ def residual_acos_fk_dnn(kin_model_name: str, batch_size: int, blocks_count: int
         return gamma_diff_compact
 
     def residual_block(theta_in: layers.Layer):
-        diff = fk_diff(theta_in)
-        gamma_diff_compact = IsometryCompact()(diff)
+        gamma_diff_compact = fk_diff(theta_in)
 
         concat = layers.Concatenate()([theta_in, gamma_diff_compact])
         theta_out = corrector_block(concat)
@@ -43,7 +42,7 @@ def residual_acos_fk_dnn(kin_model_name: str, batch_size: int, blocks_count: int
     for i in range(blocks_count - 1):
         theta_iters.append(residual_block(theta_iters[-1]))
 
-    concat_norms = fk_theta_iters_dist(kin_model_name, batch_size, theta_iters, iso_goal_compact)
+    concat_norms = theta_iters_dist(kin_model_name, batch_size, theta_iters, iso_goal_compact)
 
     model_dist = Model(inputs=[theta_input, iso_goal], outputs=concat_norms, name="residual_acos_fk_dnn_dist")
     model_ik = Model(inputs=[theta_input, iso_goal], outputs=theta_iters, name="residual_acos_fk_dnn_ik")

@@ -2,7 +2,7 @@ import tensorflow as tf
 from keras import layers
 from keras import Model
 
-from neural_ik.models.common import fk_theta_iters_dist
+from neural_ik.models.common import theta_iters_dist
 from tf_kinematics.kinematic_models import load as load_kin
 from tf_kinematics.kin_layers import ForwardKinematics
 from tf_kinematics.iso_layers import IsometryCompact, IsometryInverse, IsometryMul, CompactDiff
@@ -39,7 +39,7 @@ def residual_fk_dnn(kin_model_name: str, batch_size: int, blocks_count: int, cor
     for i in range(blocks_count - 1):
         theta_iters.append(residual_block(theta_iters[-1]))
 
-    concat_norms = fk_theta_iters_dist(kin_model_name, batch_size, theta_iters, iso_goal_input)
+    concat_norms = theta_iters_dist(kin_model_name, batch_size, theta_iters, iso_goal_input)
 
     model_dist = Model(inputs=[theta_input, iso_goal_input], outputs=concat_norms, name="residual_fk_dnn_dist")
     model_ik = Model(inputs=[theta_input, iso_goal_input], outputs=theta_iters, name="residual_fk_dnn_ik")
