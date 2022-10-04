@@ -2,7 +2,7 @@ import math
 
 import tensorflow as tf
 
-from .tf_transformations import tf_compact
+from tf_kinematics.tf_transformations import tf_compact
 from keras.layers import Layer
 
 

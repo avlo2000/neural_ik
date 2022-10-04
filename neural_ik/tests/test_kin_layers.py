@@ -2,12 +2,10 @@ from unittest import TestCase
 
 from keras import Input, Model
 
-from tf_kinematics.kinematic_models import load
-from tf_kinematics.kin_layers import ForwardKinematics, JacobianForwardKinematics, NewtonIter, LimitsLerp
+from tf_kinematics.kinematic_models_io import load
+from tf_kinematics.layers.kin_layers import ForwardKinematics, JacobianForwardKinematics, NewtonIter, LimitsLerp
 
 import tensorflow as tf
-
-from tf_kinematics.tf_transformations import tf_compact
 
 
 class TestForwardKinematics(TestCase):
@@ -40,30 +38,22 @@ class TestJacobianForwardKinematics(TestCase):
 
 class TestNewtonIter(TestCase):
     def test_call_batch1(self):
-        layer = NewtonIter("kuka_robot", 1)
-        theta_test = tf.random.uniform(shape=(1, 7))
-        gamma_test = tf.random.uniform(shape=(1, 6))
-        res = layer.call([gamma_test, theta_test])
-        self.assertEqual(res.shape, (1, 7))
+        bs = 1
+        layer = NewtonIter("kuka_robot", bs)
+        theta_test = tf.random.uniform(shape=(bs, 7))
+        gamma_test = tf.random.uniform(shape=(bs, 6))
+        d_thetas, gamma_actual = layer.call([gamma_test, theta_test])
+        self.assertEqual(d_thetas.shape, (bs, 7))
+        self.assertEqual(gamma_actual.shape, (bs, 6))
 
     def test_call_batch3(self):
-        layer = NewtonIter("kuka_robot", 3)
-        theta_test = tf.random.uniform(shape=(3, 7))
-        gamma_test = tf.random.uniform(shape=(3, 6))
-        res = layer.call([gamma_test, theta_test])
-        self.assertEqual(res.shape, (3, 7))
-
-    def test_converge(self):
-        kin = load('kuka_robot', 1)
-        layer = NewtonIter("kuka_robot", 1)
-        theta_expected = tf.zeros(shape=(1, kin.dof))
-        gamma_expected = tf_compact(kin.forward(tf.reshape(theta_expected, [-1])))
-        theta_seed = theta_expected + tf.ones(shape=(1, kin.dof)) * 0.1
-        losses = []
-        for _ in range(5):
-            theta_seed = layer.call([gamma_expected, theta_seed])
-            losses.append(float(tf.linalg.norm(theta_seed - theta_expected)))
-        self.assertTrue(all(a >= b for a, b in zip(losses, losses[1:])))
+        bs = 3
+        layer = NewtonIter("kuka_robot", bs)
+        theta_test = tf.random.uniform(shape=(bs, 7))
+        gamma_test = tf.random.uniform(shape=(bs, 6))
+        d_thetas, gamma_actual = layer.call([gamma_test, theta_test])
+        self.assertEqual(d_thetas.shape, (bs, 7))
+        self.assertEqual(gamma_actual.shape, (bs, 6))
 
     def test_building_in_model(self):
         kin = load('kuka_robot', 1)

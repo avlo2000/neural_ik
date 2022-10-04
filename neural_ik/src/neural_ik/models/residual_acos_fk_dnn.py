@@ -3,9 +3,9 @@ from keras import layers
 from keras import Model
 
 from neural_ik.models.common import theta_iters_dist
-from tf_kinematics.kinematic_models import load as load_kin
-from tf_kinematics.kin_layers import ForwardKinematics, LimitsLerp
-from tf_kinematics.iso_layers import IsometryCompact, IsometryMul, ArcCos, IsometryInverse
+from tf_kinematics.kinematic_models_io import load as load_kin
+from tf_kinematics.layers.kin_layers import ForwardKinematics, LimitsLerp
+from tf_kinematics.layers.iso_layers import IsometryCompact, ArcCos
 
 
 def residual_acos_fk_dnn(kin_model_name: str, batch_size: int, blocks_count: int, corrector_units: int) -> (Model, Model):

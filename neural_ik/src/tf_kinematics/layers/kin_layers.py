@@ -1,9 +1,10 @@
-from .tf_transformations import tf_compact
-from .dlkinematics import DLKinematics
+from tf_kinematics.layers.base import _KinematicLayer
+from tf_kinematics.tf_transformations import tf_compact
+from tf_kinematics.dlkinematics import DLKinematics
 
 import tensorflow as tf
 from keras.layers import Layer
-from tf_kinematics.kinematic_models import load as load_kin
+from tf_kinematics.kinematic_models_io import load as load_kin
 
 
 @tf.function
@@ -22,34 +23,6 @@ def fk_and_jacobian(thetas: tf.Tensor, kernel: DLKinematics) -> (tf.Tensor, tf.T
     tf.debugging.check_numerics(jac, f"fk_and_jacobian: {jac}")
 
     return jac, gamma
-
-
-@tf.function
-def newton_iter(jac: tf.Tensor, gamma_expected: tf.Tensor, gamma_actual: tf.Tensor) -> tf.Tensor:
-    jac_pinv = tf.linalg.pinv(jac)
-    gamma_diff = tf.reshape(gamma_expected - gamma_actual, shape=(-1, 6, 1))
-    d_thetas = tf.linalg.matmul(jac_pinv, gamma_diff)
-    d_thetas = tf.squeeze(d_thetas, axis=2)
-    return d_thetas
-
-
-@tf.keras.utils.register_keras_serializable()
-class _KinematicLayer(Layer):
-    def __init__(self, kin_model_name: str, batch_size: int, **kwargs):
-        self._kernel: DLKinematics = load_kin(kin_model_name, batch_size)
-        self.__kin_model_name = kin_model_name
-        self.__batch_size = batch_size
-        super(_KinematicLayer, self).__init__(**kwargs)
-
-    @classmethod
-    def from_config(cls, config: dict):
-        return cls(config['kin_model_name'], config['batch_size'])
-
-    def get_config(self):
-        config = super(_KinematicLayer, self).get_config()
-        config.update({'kin_model_name': self.__kin_model_name})
-        config.update({'batch_size': self.__batch_size})
-        return config
 
 
 @tf.keras.utils.register_keras_serializable()
@@ -94,7 +67,6 @@ class NewtonIter(_KinematicLayer):
 
     def call(self, inputs: (tf.Tensor, tf.Tensor), **kwargs) -> (tf.Tensor, tf.Tensor):
         gamma_expected, thetas = inputs
-
         tf.debugging.check_numerics(gamma_expected, f"{self.name}: {gamma_expected}")
         tf.debugging.check_numerics(thetas, f"{self.name}: {thetas}")
 
@@ -111,8 +83,8 @@ class NewtonIter(_KinematicLayer):
 
         d_thetas = tf.linalg.matmul(jac_pinv, gamma_diff)
         d_thetas = tf.squeeze(d_thetas, axis=2)
-
         tf.debugging.check_numerics(d_thetas, f"{self.name}: {d_thetas}")
+
         return d_thetas, gamma_actual
 
     def compute_output_shape(self, input_shape: tf.TensorShape):

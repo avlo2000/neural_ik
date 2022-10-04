@@ -2,9 +2,7 @@ import tempfile
 from unittest import TestCase
 from neural_ik.models.residual_fk_dnn import residual_fk_dnn
 from neural_ik.losses import PowWeightedMSE
-from tf_kinematics.iso_layers import IsometryCompact, IsometryInverse, CompactL2Norm, CompactL1Norm
-from tf_kinematics.kin_layers import ForwardKinematics
-from tf_kinematics.kinematic_models import load as load_kin
+from tf_kinematics.kinematic_models_io import load as load_kin
 from keras.models import load_model
 import tensorflow as tf
 

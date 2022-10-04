@@ -1,14 +1,12 @@
 import tensorflow as tf
-from keras import layers
 from keras import Model
 from keras.engine.keras_tensor import KerasTensor
 
 from neural_ik.layers import WeightedSum
-from tf_kinematics.kinematic_models import load as load_kin
-from tf_kinematics.iso_layers import IsometryCompact, IsometryInverse
-from tf_kinematics.kin_layers import NewtonIter, LimitsLerp
-from neural_ik.models.common import fk_compact_iters_dist, linear_identity, dnn_block
-from keras.utils.vis_utils import plot_model
+from tf_kinematics.kinematic_models_io import load as load_kin
+from tf_kinematics.layers.iso_layers import IsometryCompact
+from tf_kinematics.layers.kin_layers import NewtonIter
+from neural_ik.models.common import fk_compact_iters_dist, dnn_block
 
 
 def residual_newton_iter_percept(kin_model_name: str, batch_size: int, *, blocks_count: int) -> (Model, Model):

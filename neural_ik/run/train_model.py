@@ -8,8 +8,9 @@ from neural_ik.losses import PowWeightedMSE
 from neural_ik.metrics import last_one_abs, first_one_abs
 from neural_ik.models.residual_fk_dnn import residual_fk_dnn
 from neural_ik.models.residual_newton_iter_percept import residual_newton_iter_percept
+from neural_ik.models.residual_solver_dnn import residual_solver_dnn
 from neural_ik.visual import plot_training_history
-from tf_kinematics.kinematic_models import load
+from tf_kinematics.kinematic_models_io import load
 
 
 PATH_TO_DATA = Path('../data').absolute()
@@ -22,7 +23,7 @@ if __name__ == '__main__':
     kin = load(kin_model, batch_size)
 
     blocks_count = 16
-    model_dist, model_ik = residual_newton_iter_percept(kin_model, batch_size, blocks_count=blocks_count)
+    model_dist, model_ik = residual_solver_dnn(kin_model, batch_size, blocks_count=blocks_count)
     opt = tf.keras.optimizers.RMSprop()
     loss = PowWeightedMSE(base=2.7)
     model_dist.compile(optimizer=opt, loss=loss, metrics=[last_one_abs, first_one_abs])

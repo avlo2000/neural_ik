@@ -1,6 +1,6 @@
 from data.data_io import write_csv
 from data.tf_kin_data import generate_with_theta_seed
-from tf_kinematics import kinematic_models
+from tf_kinematics import kinematic_models_io
 
 
 def main():

@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from tf_kinematics.iso_layers import IsometryCompact, CompactL2Norm, CompactL1Norm, IsometryMul
+from tf_kinematics.layers.iso_layers import IsometryCompact, CompactL2Norm, CompactL1Norm, IsometryMul
 import tensorflow as tf
 
 

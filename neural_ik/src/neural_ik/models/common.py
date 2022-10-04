@@ -3,8 +3,8 @@ from keras import layers
 from keras import activations
 from keras.engine.keras_tensor import KerasTensor
 
-from tf_kinematics.kin_layers import ForwardKinematics
-from tf_kinematics.iso_layers import CompactL2Norm, IsometryCompact, CompactDiff
+from tf_kinematics.layers.kin_layers import ForwardKinematics
+from tf_kinematics.layers.iso_layers import CompactL2Norm, IsometryCompact, CompactDiff
 
 import tensorflow as tf
 

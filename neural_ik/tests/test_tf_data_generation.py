@@ -3,7 +3,7 @@ import tempfile
 
 from data.data_io import write_csv, read_csv
 from data.tf_kin_data import generate_with_theta_seed, rawdata_to_dataset
-from tf_kinematics import kinematic_models
+from tf_kinematics import kinematic_models_io
 
 
 class Test(TestCase):

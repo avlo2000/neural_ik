@@ -1,9 +1,9 @@
 import tensorflow as tf
 from keras import layers
 
-from tf_kinematics.iso_layers import IsometryInverse, IsometryCompact
-from tf_kinematics.kin_layers import ForwardKinematics
-from tf_kinematics.kinematic_models import load as load_kin
+from tf_kinematics.layers.iso_layers import IsometryInverse, IsometryCompact
+from tf_kinematics.layers.kin_layers import ForwardKinematics
+from tf_kinematics.kinematic_models_io import load as load_kin
 
 
 def simple_dnn(kin_model_name: str, batch_size: int) -> tf.keras.Model:

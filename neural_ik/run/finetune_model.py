@@ -7,11 +7,9 @@ import tensorflow as tf
 
 from data.tf_kin_data import rawdata_to_dataset
 from neural_ik.losses import PowWeightedMSE
-from neural_ik.metrics import last_one_abs, max_diff_abs, first_one_abs
+from neural_ik.metrics import last_one_abs, first_one_abs
 from neural_ik.visual import plot_training_history
-from tf_kinematics.iso_layers import IsometryCompact, IsometryInverse, CompactL2Norm
-from tf_kinematics.kin_layers import ForwardKinematics
-from tf_kinematics.kinematic_models import load
+from tf_kinematics.kinematic_models_io import load
 from keras.models import load_model
 
 PATH_TO_DATA = Path('../data').absolute()
