@@ -1,12 +1,15 @@
 import tensorflow as tf
 from keras import layers
 from keras import Model
+from keras import losses
 from keras.engine.keras_tensor import KerasTensor
 
-from neural_ik.models.common import theta_iters_dist, dnn_block
+from neural_ik.layers import Sum, WeightedSum
+from neural_ik.models.common import theta_iters_dist, dnn_block, linear_identity
 from tf_kinematics.kinematic_models_io import load as load_kin
 from tf_kinematics.layers.solve_layers import SolveIterGrad
-from tf_kinematics.layers.iso_layers import IsometryCompact
+from tf_kinematics.layers.iso_layers import IsometryCompact, CompactMSE, CompactDiff
+from tf_kinematics.layers.kin_layers import ForwardKinematics
 
 
 def residual_solver_dnn(kin_model_name: str, batch_size: int, blocks_count: int) -> (Model, Model):
@@ -18,16 +21,18 @@ def residual_solver_dnn(kin_model_name: str, batch_size: int, blocks_count: int)
     iso_goal_compact = IsometryCompact()(iso_goal_input)
 
     def residual_block(theta_in: KerasTensor):
-        solve_iter = SolveIterGrad("mse", "rmsprop", kin_model_name, batch_size)([iso_goal_compact, theta_in])
-        theta_out = dnn_block(dof, (16, 32), solve_iter)
-        return theta_out
+        grad = SolveIterGrad("mse", kin_model_name, batch_size)([iso_goal_compact, theta_in])
+        smart_lr = dnn_block(dof, (16, 32, 16), theta_in)
+        return WeightedSum()([grad, smart_lr, theta_in])
 
-    theta_iters = [residual_block(theta_input)]
+    theta_iter = residual_block(theta_input)
     for i in range(blocks_count - 1):
-        theta_iters.append(residual_block(theta_iters[-1]))
+        theta_iter = residual_block(theta_iter)
 
-    concat_norms = theta_iters_dist(kin_model_name, batch_size, theta_iters, iso_goal_input)
+    fk_iso = ForwardKinematics(kin_model_name, batch_size)(theta_iter)
+    fk_compact = IsometryCompact()(fk_iso)
+    fk_diff = CompactDiff()([fk_compact, iso_goal_compact])
 
-    model_dist = Model(inputs=[theta_input, iso_goal_input], outputs=concat_norms, name="residual_solver_dnn_dist")
-    model_ik = Model(inputs=[theta_input, iso_goal_input], outputs=theta_iters, name="residual_solver_dnn_ik")
+    model_dist = Model(inputs=[theta_input, iso_goal_input], outputs=fk_diff, name="residual_solver_dnn_dist")
+    model_ik = Model(inputs=[theta_input, iso_goal_input], outputs=theta_iter, name="residual_solver_dnn_ik")
     return model_dist, model_ik

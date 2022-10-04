@@ -5,7 +5,7 @@ import tensorflow as tf
 from data.data_io import read_csv
 from data.tf_kin_data import rawdata_to_dataset
 from neural_ik.losses import PowWeightedMSE
-from neural_ik.metrics import last_one_abs, first_one_abs
+from neural_ik.metrics import last_gamma_diff, first_gamma_diff, gamma_xyz_norm, gamma_andle_axis_norm
 from neural_ik.models.residual_fk_dnn import residual_fk_dnn
 from neural_ik.models.residual_newton_iter_percept import residual_newton_iter_percept
 from neural_ik.models.residual_solver_dnn import residual_solver_dnn
@@ -22,24 +22,23 @@ if __name__ == '__main__':
     kin_model = 'kuka_robot'
     kin = load(kin_model, batch_size)
 
-    blocks_count = 16
+    blocks_count = 32
     model_dist, model_ik = residual_solver_dnn(kin_model, batch_size, blocks_count=blocks_count)
     opt = tf.keras.optimizers.RMSprop()
-    loss = PowWeightedMSE(base=2.7)
-    model_dist.compile(optimizer=opt, loss=loss, metrics=[last_one_abs, first_one_abs])
+    model_dist.compile(optimizer=opt, loss='mse')
     model_dist.summary()
 
-    with open(PATH_TO_DATA / 'kuka_test_10k.csv', mode='r') as file:
+    with open(PATH_TO_DATA / 'kuka_train_10k.csv', mode='r') as file:
         feature_names, raw_data = read_csv(file)
     thetas, thetas_seed, iso_transforms = rawdata_to_dataset(kin, feature_names, raw_data)
     x = [thetas_seed, iso_transforms]
-    y = tf.zeros(shape=(len(thetas), blocks_count), dtype=float)
+    y = tf.zeros(shape=(len(thetas), 6), dtype=float)
 
     early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_last_one_abs',
-                                                      patience=3,
+                                                      patience=5,
                                                       mode='min',
-                                                      min_delta=0.01)
-    tag = '_catch_NaNs'
+                                                      min_delta=0.001)
+    tag = '_0.1'
     model_dist_path = PATH_TO_MODELS / f'{model_dist.name}_{kin_model}_{tag}.hdf5'
     model_ik_path = PATH_TO_MODELS / f'{model_ik.name}_{kin_model}_{tag}.hdf5'
     checkpoint = tf.keras.callbacks.ModelCheckpoint(model_dist_path, 'val_loss', verbose=1, save_best_only=False)

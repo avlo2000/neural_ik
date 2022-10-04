@@ -7,7 +7,7 @@ import tensorflow as tf
 
 from data.tf_kin_data import rawdata_to_dataset
 from neural_ik.losses import PowWeightedMSE
-from neural_ik.metrics import last_one_abs, first_one_abs
+from neural_ik.metrics import last_gamma_diff, first_gamma_diff
 from neural_ik.visual import plot_training_history
 from tf_kinematics.kinematic_models_io import load
 from keras.models import load_model
@@ -23,7 +23,7 @@ def main():
     kin = load(kin_model, batch_size)
 
     model_dist: keras.Model = load_model(PATH_TO_MODELS / 'residual_fk_dnn_dist_kuka_robot__catch_NaNs.hdf5')
-    model_dist.compile(loss=PowWeightedMSE(2.7), metrics=[last_one_abs, first_one_abs])
+    model_dist.compile(loss=PowWeightedMSE(2.7), metrics=[last_gamma_diff, first_gamma_diff])
 
     with open(PATH_TO_DATA / 'kuka_train_10k.csv', mode='r') as file:
         feature_names, raw_data = read_csv(file)

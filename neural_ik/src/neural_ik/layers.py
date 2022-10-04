@@ -10,3 +10,12 @@ class WeightedSum(layers.Layer):
         tf.debugging.check_numerics(dt, f"{self.name}: {dt}")
         tf.debugging.check_numerics(t, f"{self.name}: {t}")
         return dt * w + t
+
+
+@tf.keras.utils.register_keras_serializable()
+class Sum(layers.Layer):
+    def call(self, inputs, **kwargs):
+        dt, t = inputs
+        tf.debugging.check_numerics(dt, f"{self.name}: {dt}")
+        tf.debugging.check_numerics(t, f"{self.name}: {t}")
+        return dt + t

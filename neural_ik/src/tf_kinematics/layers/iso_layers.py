@@ -59,6 +59,13 @@ class CompactDiff(Layer):
 
 
 @tf.keras.utils.register_keras_serializable()
+class CompactMSE(Layer):
+    def call(self, compacts, **kwargs):
+        compact1, compact2 = compacts
+        return tf.reduce_mean(tf.square(compact1 - compact2), axis=1)
+
+
+@tf.keras.utils.register_keras_serializable()
 class _CompactNorm(Layer):
     def __init__(self, translation_weight: float, rotation_weight: float, **kwargs):
         self._translation_weight = translation_weight
@@ -95,5 +102,4 @@ class CompactL1Norm(_CompactNorm):
         tr_norm = tf.linalg.norm(compact[..., :3], ord=1, axis=1)
         rot_norm = tf.linalg.norm(compact[..., 3:], ord=1, axis=1)
         return tf.expand_dims(tr_norm * self._translation_weight + rot_norm * self._rotation_weight, axis=-1)
-
 

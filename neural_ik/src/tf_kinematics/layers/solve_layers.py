@@ -25,7 +25,6 @@ class SolveIterGrad(_KinematicLayer):
         return solve_iter_grad(y_goal, x, self.__sys_fn, self.__loss)
 
     def get_config(self):
-        config = super(self).get_config()
+        config = super(SolveIterGrad, self).get_config()
         config.update({'loss_ident': self.loss_ident})
-        config.update({'opt_ident': self.opt_ident})
         return config
