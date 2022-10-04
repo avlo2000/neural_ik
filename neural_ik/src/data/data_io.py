@@ -64,7 +64,7 @@ def read_csv(file: TextIO) -> (Iterable[str], Iterable[Iterable[Any]]):
 
     feat_names = reader.fieldnames
     raw_data = []
-    for row in reader:
+    for row in tqdm(reader):
         raw_data.append([float(row[feat]) for feat in feat_names])
     return feat_names, raw_data
 

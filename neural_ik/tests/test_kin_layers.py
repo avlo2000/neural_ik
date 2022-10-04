@@ -1,5 +1,7 @@
 from unittest import TestCase
 
+from keras import Input, Model
+
 from tf_kinematics.kinematic_models import load
 from tf_kinematics.kin_layers import ForwardKinematics, JacobianForwardKinematics, NewtonIter, LimitsLerp
 
@@ -53,7 +55,7 @@ class TestNewtonIter(TestCase):
 
     def test_converge(self):
         kin = load('kuka_robot', 1)
-        layer = NewtonIter("kuka_robot", 1, return_diff=False)
+        layer = NewtonIter("kuka_robot", 1)
         theta_expected = tf.zeros(shape=(1, kin.dof))
         gamma_expected = tf_compact(kin.forward(tf.reshape(theta_expected, [-1])))
         theta_seed = theta_expected + tf.ones(shape=(1, kin.dof)) * 0.1
@@ -62,6 +64,14 @@ class TestNewtonIter(TestCase):
             theta_seed = layer.call([gamma_expected, theta_seed])
             losses.append(float(tf.linalg.norm(theta_seed - theta_expected)))
         self.assertTrue(all(a >= b for a, b in zip(losses, losses[1:])))
+
+    def test_building_in_model(self):
+        kin = load('kuka_robot', 1)
+        inp_gamma = Input(6)
+        inp_dof = Input(kin.dof)
+        d_theta, gamma_fk = NewtonIter("kuka_robot", 1)([inp_gamma, inp_dof])
+        model = Model(inputs=[inp_gamma, inp_dof], outputs=[d_theta, gamma_fk], name="test")
+        model.compile()
 
 
 class TestLimitsLerp(TestCase):

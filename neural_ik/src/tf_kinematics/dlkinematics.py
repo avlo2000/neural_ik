@@ -10,8 +10,7 @@ from tf_kinematics.solver import solve_static, solve_forward
 
 
 class DLKinematics:
-    def __init__(self, urdf: Robot, base_link, end_link, batch_size=1, debug=False):
-        self.debug = debug
+    def __init__(self, urdf: Robot, base_link, end_link, batch_size=1):
         if not isinstance(urdf, Robot):
             raise DLKinematicsError(
                 'Expected urdf to be type {0} got {1}'.format(Robot, type(urdf)))
@@ -94,13 +93,7 @@ class DLKinematics:
 
     @tf.function
     def forward(self, thetas):
-        thetas = tf.cast(thetas, tf.float32)
-
-        # Workaround if there no joints with any DoF
-        if tf.math.equal(tf.size(thetas), 0):
-            thetas = tf.cast([0], tf.float32)
-
-        return solve_forward(self.forward_matrices, thetas, self.theta_indices, self.thetas_shape, debug=self.debug)
+        return solve_forward(self.forward_matrices, thetas, self.theta_indices, self.thetas_shape)
 
     @property
     def num_joints(self):
@@ -163,3 +156,25 @@ class DLKinematicsError(Exception):
             return 'DLKinematicsError'
 
 
+# from tf_kinematics.urdf import chain_from_urdf_file
+# # Load URDF
+# chain = chain_from_urdf_file(r'C:\Users\Pavlo\source\repos\math\neural_ik\urdf\kuka.urdf')
+#
+# # Create DLKinematics
+# dlkinematics = DLKinematics(
+#    chain,
+#    base_link="calib_kuka_arm_base_link",
+#    end_link="kuka_arm_7_link",
+#    batch_size=2)
+#
+# # Joint configuartion
+# thetas = tf.Variable([0.]*14, dtype=tf.float32)
+# thetas = tf.reshape(thetas, shape=(2, 7))
+#
+# # Forward pass
+# with tf.GradientTape() as tape:
+#     tape.watch(thetas)
+#     result = dlkinematics.forward(tf.reshape(thetas, shape=(-1)))
+# jak = tape.batch_jacobian(result, thetas)
+# print(jak.shape)
+# print(jak)

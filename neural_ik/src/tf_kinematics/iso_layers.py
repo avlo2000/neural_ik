@@ -53,6 +53,8 @@ class IsometryMul(Layer):
 class CompactDiff(Layer):
     def call(self, compacts, **kwargs):
         compact1, compact2 = compacts
+        tf.debugging.check_numerics(compact1, f"{self.name}: {compact1}")
+        tf.debugging.check_numerics(compact2, f"{self.name}: {compact2}")
         return compact1 - compact2
 
 

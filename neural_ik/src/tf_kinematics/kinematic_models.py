@@ -1,3 +1,4 @@
+from functools import lru_cache
 from pathlib import Path
 from typing import Callable
 
@@ -12,6 +13,7 @@ def kinematic_model(func: Callable):
     _KINEMATIC_MODELS_REGISTER[func.__name__] = func
 
 
+@lru_cache(maxsize=128)
 def load(model_name: str, batch_size: int) -> DLKinematics:
     assert model_name in _KINEMATIC_MODELS_REGISTER, f"{model_name} does not have loading method"
     return _KINEMATIC_MODELS_REGISTER[model_name](batch_size)
