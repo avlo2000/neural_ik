@@ -34,7 +34,7 @@ def simple_dnn(kin_model_name: str, batch_size: int) -> tf.keras.Model:
     theta_out = layers.Dense(dof, activation=activation_fn)(x)
     iso_out = ForwardKinematics(kin_model_name, batch_size)(theta_out)
     iso_inv = IsometryInverse()(iso_input)
-    iso_diff = layers.Multiply() //ELEMENTWISE!!!!!!!!!!
+    iso_diff = layers.Multiply()
 
-    model = tf.keras.Model(inputs=[theta_input, iso_input], output_layer, name="simple_dnn")
-    return model
+    # model = tf.keras.Model(inputs=[theta_input, iso_input], output_layer, name="simple_dnn")
+    # return model
