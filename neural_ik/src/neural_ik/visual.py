@@ -8,7 +8,8 @@ from matplotlib.widgets import Slider
 
 
 def plot_training_history(history: Mapping[str, Iterable[float]], save_path=None):
-    plt.clf()
+    mng = plt.get_current_fig_manager()
+    mng.resize(*mng.window.maxsize())
 
     train_hist = dict()
     for key, val in history.items():
@@ -18,18 +19,23 @@ def plot_training_history(history: Mapping[str, Iterable[float]], save_path=None
     n = len(train_hist)
 
     idx = 1
+    figure = plt.gcf()
+    figure.set_size_inches(8, 6)
     for m_name, m_nums in train_hist.items():
         axs = plt.subplot(n, 1, idx)
         idx += 1
 
-        axs.set_title(m_name)
+        axs.set_ylabel(m_name)
+        axs.grid()
+
         plt.plot(m_nums, label="train")
         if 'val_'+m_name in history:
             m_nums_val = history['val_'+m_name]
             plt.plot(m_nums_val, label="valid")
+        plt.legend(loc="upper left")
 
     if save_path is not None:
-        plt.savefig(save_path)
+        plt.savefig(save_path, dpi=150)
     plt.show()
 
 

@@ -15,8 +15,8 @@ from tf_kinematics.kinematic_models_io import load
 PATH_TO_DATA = Path('../data').absolute()
 PATH_TO_MODELS = Path('../models').absolute()
 PATH_TO_PICS = Path('../pics').absolute()
-KINEMATIC_NAME = 'omnipointer'
-DATASET_SIZE_SUF = '2k'
+KINEMATIC_NAME = 'human'
+DATASET_SIZE_SUF = '10k'
 
 
 tf.debugging.disable_check_numerics()
@@ -42,19 +42,18 @@ def prepare_data(kin_model, batch_size):
 
 
 def train_model(model, x, y, batch_size):
-    tag = '_0.1'
-    epochs = 50
+    tag = '_0_1'
+    epochs = 30
 
-    model_path = PATH_TO_MODELS / f'{model.name}_{KINEMATIC_NAME}_{tag}.hdf5'
-    model_checkpoint_path = PATH_TO_MODELS / f'{model.name}__{KINEMATIC_NAME}__{tag}__checkpoint.hdf5'
+    model_path = PATH_TO_MODELS / f'{model.name}_{KINEMATIC_NAME}_{tag}.h5'
+    model_checkpoint_path = PATH_TO_MODELS / f'{model.name}__{KINEMATIC_NAME}__{tag}__checkpoint.h5'
     checkpoint = tf.keras.callbacks.ModelCheckpoint(model_checkpoint_path, 'val_loss', verbose=1, save_best_only=True)
-    early_stopping = tf.keras.callbacks.EarlyStopping(patience=5, mode='min',  min_delta=0.001,
-                                                      restore_best_weights=True)
+    early_stopping = tf.keras.callbacks.EarlyStopping(patience=10, mode='min', restore_best_weights=True)
 
     history = model.fit(x=x, y=y,
                         epochs=epochs, batch_size=batch_size,
                         validation_split=0.1, callbacks=[early_stopping, checkpoint],
-                        workers=6, use_multiprocessing=True)
+                        workers=12, use_multiprocessing=True)
 
     model.save(model_path)
     plot_training_history(history.history, PATH_TO_PICS / f'{model.name}_{KINEMATIC_NAME}_{tag}.png')

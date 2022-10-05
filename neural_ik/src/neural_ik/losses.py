@@ -29,6 +29,3 @@ class PowWeightedMSE(Loss):
         config.update({'normalize': self.__normalize})
         return config
 
-    @classmethod
-    def from_config(cls, config):
-        return cls(config['base'], config['normalize'])

@@ -13,9 +13,9 @@ from data.data_io import frame_to_vec, vec_to_frame
 
 class IKSolverMock(IKSolver):
     def __init__(self):
-        super().__init__(None)
+        super().__init__()
 
-    def _solve(self, pose: Frame) -> Optional[np.ndarray]:
+    def solve(self, pose: Frame) -> Optional[np.ndarray]:
         sleep(0.01)
         if pose is None:
             return None

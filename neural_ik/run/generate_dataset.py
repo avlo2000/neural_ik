@@ -6,8 +6,8 @@ from tf_kinematics import kinematic_models_io
 
 
 PATH_TO_DATA = Path('../data').absolute()
-KINEMATIC_NAME = 'omnipointer'
-SIZE = 2_000
+KINEMATIC_NAME = 'human'
+SIZE = 10_000
 TRAIN_TEST_SPLIT = 0.6
 SEED_MAX_DIST = 0.1
 
@@ -20,9 +20,9 @@ def main():
 
     size_suf = str(SIZE // 1000) + 'k'
     with open(PATH_TO_DATA/f'{KINEMATIC_NAME}_train_{size_suf}.csv', 'w') as file:
-        write_csv(feature_names[:train_size], raw_data[:train_size], file)
+        write_csv(feature_names, raw_data[:train_size], file)
     with open(PATH_TO_DATA/f'{KINEMATIC_NAME}_test_{size_suf}.csv', 'w') as file:
-        write_csv(feature_names[train_size:], raw_data[train_size:], file)
+        write_csv(feature_names, raw_data[train_size:], file)
 
 
 if __name__ == '__main__':

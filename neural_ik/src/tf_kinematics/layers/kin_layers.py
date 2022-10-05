@@ -101,11 +101,6 @@ class LimitsLerp(_KinematicLayer):
     def compute_output_shape(self, input_shape: tf.TensorShape):
         return input_shape
 
-    @classmethod
-    def from_config(cls, config: dict):
-        return cls(config['min_val'], config['max_val'],
-                   config['kin_model_name'], config['batch_size'])
-
     def get_config(self):
         config = super(LimitsLerp, self).get_config()
         config.update({'min_val': self.__min_val})
