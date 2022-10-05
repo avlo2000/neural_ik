@@ -33,6 +33,5 @@ def residual_solver_dnn(kin_model_name: str, batch_size: int, blocks_count: int)
     fk_compact = IsometryCompact()(fk_iso)
     fk_diff = CompactDiff()([fk_compact, iso_goal_compact])
 
-    model_dist = Model(inputs=[theta_input, iso_goal_input], outputs=fk_diff, name="residual_solver_dnn_dist")
-    model_ik = Model(inputs=[theta_input, iso_goal_input], outputs=theta_iter, name="residual_solver_dnn_ik")
-    return model_dist, model_ik
+    model = Model(inputs=[theta_input, iso_goal_input], outputs=fk_diff, name="residual_solver_dnn_dist")
+    return model

@@ -7,6 +7,6 @@ PyYAML==6.0
 setuptools==45.2.0
 tensorflow==2.10.0
 tqdm==4.64.0
-transformations==2022.8.26
+transformations==2021.6.6
 urdf_parser_py==0.0.4
 visual_kinematics==0.2.1

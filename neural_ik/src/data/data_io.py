@@ -55,8 +55,7 @@ def generate_to_file(generator: FKGenerator, path_to_file: str) -> None:
 def write_csv(feat_names: Iterable[str], raw_data: Iterable[Iterable[Any]], file: TextIO):
     writer = csv.writer(file)
     writer.writerow(feat_names)
-    for row in raw_data:
-        writer.writerow(row)
+    writer.writerows(raw_data)
 
 
 def read_csv(file: TextIO) -> (Iterable[str], Iterable[Iterable[Any]]):

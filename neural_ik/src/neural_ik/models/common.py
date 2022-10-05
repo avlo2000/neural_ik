@@ -33,7 +33,6 @@ def dnn_block(dof, hidden: Iterable[int], x: KerasTensor) -> KerasTensor:
     activation_fn = tf.nn.leaky_relu
     for h in hidden:
         x = layers.Dense(h, activation=activation_fn)(x)
-        x = layers.BatchNormalization()(x)
     x = layers.Dense(dof, activation=activation_fn)(x)
     return x
 

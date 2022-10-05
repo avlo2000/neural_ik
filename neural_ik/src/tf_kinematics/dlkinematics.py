@@ -6,7 +6,7 @@ import tensorflow as tf
 import numpy as np
 
 from tf_kinematics.urdf_parser.urdf import Robot  # noqa
-from tf_kinematics.solver import solve_static, solve_forward
+from tf_kinematics.fk_solver import solve_static, solve_forward
 
 
 class DLKinematics:

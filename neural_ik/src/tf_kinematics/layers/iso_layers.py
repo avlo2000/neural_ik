@@ -21,9 +21,9 @@ class ArcCos(Layer):
 @tf.keras.utils.register_keras_serializable()
 class IsometryCompact(Layer):
     def call(self, inputs, **kwargs) -> tf.Tensor:
-        tf.debugging.check_numerics(inputs, f"{self.name}: {inputs}")
+        # tf.debugging.check_numerics(inputs, f"{self.name}: {inputs}")
         compact = tf_compact(inputs)
-        tf.debugging.check_numerics(inputs, f"{self.name}: {compact}")
+        # tf.debugging.check_numerics(inputs, f"{self.name}: {compact}")
         return compact
 
     def compute_output_shape(self, input_shape):
@@ -53,8 +53,8 @@ class IsometryMul(Layer):
 class CompactDiff(Layer):
     def call(self, compacts, **kwargs):
         compact1, compact2 = compacts
-        tf.debugging.check_numerics(compact1, f"{self.name}: {compact1}")
-        tf.debugging.check_numerics(compact2, f"{self.name}: {compact2}")
+        # tf.debugging.check_numerics(compact1, f"{self.name}: {compact1}")
+        # tf.debugging.check_numerics(compact2, f"{self.name}: {compact2}")
         return compact1 - compact2
 
 

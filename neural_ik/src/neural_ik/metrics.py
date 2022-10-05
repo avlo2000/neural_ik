@@ -22,5 +22,15 @@ def gamma_andle_axis_norm(y_true: tf.Tensor, y_pred: tf.Tensor):
 
 
 @tf.keras.utils.register_keras_serializable()
+def gamma_xyz_max(y_true: tf.Tensor, y_pred: tf.Tensor):
+    return tf.reduce_max(tf.abs(y_true[..., 3:] - y_pred[..., 3:]), axis=1)
+
+
+@tf.keras.utils.register_keras_serializable()
+def gamma_andle_axis_max(y_true: tf.Tensor, y_pred: tf.Tensor):
+    return tf.reduce_max(tf.abs(y_true[..., :3] - y_pred[..., :3]), axis=1)
+
+
+@tf.keras.utils.register_keras_serializable()
 def max_diff_abs(y_true: tf.Tensor, y_pred: tf.Tensor):
     return tf.reduce_max(tf.abs(y_true - y_pred), axis=1)
