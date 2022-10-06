@@ -9,6 +9,8 @@ class TestSolveIterGrad(TestCase):
         layer = SolveIterGrad("mse", "kuka_robot", bs)
         theta_test = tf.random.uniform(shape=(bs, 7))
         gamma_test = tf.random.uniform(shape=(bs, 6))
+
+        layer.build((gamma_test.shape, theta_test.shape))
         theta = layer.call([gamma_test, theta_test])
         self.assertEqual(theta.shape, (bs, 7))
 
@@ -17,5 +19,7 @@ class TestSolveIterGrad(TestCase):
         layer = SolveIterGrad("mse", "kuka_robot", bs)
         theta_test = tf.random.uniform(shape=(bs, 7))
         gamma_test = tf.random.uniform(shape=(bs, 6))
+
+        layer.build((gamma_test.shape, theta_test.shape))
         theta = layer.call([gamma_test, theta_test])
         self.assertEqual(theta.shape, (bs, 7))

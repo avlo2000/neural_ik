@@ -8,5 +8,5 @@ class EvaluateReport:
     found: int
     total: int
     times: np.ndarray
-    losses: np.ndarray
+
 

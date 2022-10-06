@@ -92,7 +92,7 @@ class DLKinematics:
         return [Joint(self.urdf.joint_map.get(x)) for x in t]
 
     @tf.function
-    def forward(self, thetas):
+    def forward(self, thetas) -> tf.Tensor:
         return solve_forward(self.forward_matrices, thetas, self.theta_indices, self.thetas_shape)
 
     @property
