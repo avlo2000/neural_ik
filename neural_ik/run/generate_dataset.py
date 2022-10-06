@@ -7,7 +7,7 @@ from tf_kinematics import kinematic_models_io
 
 PATH_TO_DATA = Path('../data').absolute()
 KINEMATIC_NAME = 'kuka'
-SIZE = 2_000
+SIZE = 10_000
 TRAIN_TEST_SPLIT = 0.6
 SEED_MAX_DIST = 0.1
 

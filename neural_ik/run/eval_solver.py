@@ -31,7 +31,7 @@ def prepare_data(kin_model):
 
 def main():
     kin_model = f"{KINEMATIC_NAME}_robot"
-    solver = AdamSolver(16, 0.01, kin_model)
+    solver = NewtonSolver(32, 1e-6, kin_model)
     evaluator = SolverEvaluator(distance_as_dual_quat_norm, solver)
 
     x, y = prepare_data(kin_model)

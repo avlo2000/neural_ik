@@ -6,7 +6,13 @@ from keras import layers
 class WeightedSum(layers.Layer):
     def call(self, inputs, **kwargs):
         w, dt, t = inputs
-        return dt[...] * w[...] + t[...]
+        return w[...] * dt[...] + t[...]
+
+
+class AdamOpt(layers.Layer):
+    def call(self, inputs, **kwargs):
+        w, dt, t = inputs
+        return w[...] * dt[...]  + t[...]
 
 
 @tf.keras.utils.register_keras_serializable()

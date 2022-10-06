@@ -5,28 +5,28 @@ import tensorflow as tf
 from data.data_io import read_csv
 from data.tf_kin_data import rawdata_to_dataset
 from neural_ik.losses import PowWeightedMSE
-from neural_ik.metrics import last_gamma_diff, first_gamma_diff, gamma_xyz_norm, gamma_andle_axis_norm, max_diff_abs, \
-    gamma_xyz_max, gamma_andle_axis_max
+from neural_ik import metrics
+from neural_ik.models.newton_linear_grad_boost import newton_linear_grad_boost
 from neural_ik.models.residual_fk_dnn import residual_fk_dnn
-from neural_ik.models.residual_solver_dnn import residual_solver_dnn
+from neural_ik.models.newton_dnn_grad_boost import newton_dnn_grad_boost
 from neural_ik.visual import plot_training_history
 from tf_kinematics.kinematic_models_io import load
 
 PATH_TO_DATA = Path('../data').absolute()
 PATH_TO_MODELS = Path('../models').absolute()
 PATH_TO_PICS = Path('../pics').absolute()
-KINEMATIC_NAME = 'human'
-DATASET_SIZE_SUF = '10k'
+KINEMATIC_NAME = 'kuka'
+DATASET_SIZE_SUF = '2k'
 
 
 tf.debugging.disable_check_numerics()
 
 
 def prepare_model(kin_model, batch_size):
-    blocks_count = 16
-    model = residual_solver_dnn(kin_model, batch_size, blocks_count=blocks_count)
-    opt = tf.keras.optimizers.RMSprop()
-    model.compile(optimizer=opt, loss='mse', metrics=[gamma_xyz_max, gamma_andle_axis_max])
+    blocks_count = 32
+    model = newton_dnn_grad_boost(kin_model, batch_size, blocks_count=blocks_count)
+    opt = tf.keras.optimizers.Adam()
+    model.compile(optimizer=opt, loss='mse', metrics=[metrics.x, metrics.y, metrics.z, metrics.angle_axis_l2])
     model.summary()
     return model
 

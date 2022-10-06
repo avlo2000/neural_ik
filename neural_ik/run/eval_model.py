@@ -7,7 +7,7 @@ from keras.models import load_model
 from data.data_io import read_csv
 from data.tf_kin_data import rawdata_to_dataset
 from neural_ik.metrics import gamma_xyz_max, gamma_andle_axis_max
-from neural_ik.models.residual_solver_dnn import residual_solver_dnn
+from neural_ik.models.newton_dnn_grad_boost import newton_dnn_grad_boost
 from tf_kinematics.kinematic_models_io import load
 
 PATH_TO_DATA = Path('../data').absolute()

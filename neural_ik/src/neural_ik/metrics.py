@@ -12,25 +12,32 @@ def first_gamma_diff(y_true: tf.Tensor, y_pred: tf.Tensor):
 
 
 @tf.keras.utils.register_keras_serializable()
-def gamma_xyz_norm(y_true: tf.Tensor, y_pred: tf.Tensor):
-    return tf.linalg.norm(y_true[..., :3], y_pred[..., :3], axis=1)
-
-
-@tf.keras.utils.register_keras_serializable()
-def gamma_andle_axis_norm(y_true: tf.Tensor, y_pred: tf.Tensor):
-    return tf.linalg.norm(y_true[..., 3:], y_pred[..., 3:], axis=1)
-
-
-@tf.keras.utils.register_keras_serializable()
 def gamma_xyz_max(y_true: tf.Tensor, y_pred: tf.Tensor):
     return tf.reduce_max(tf.abs(y_true[..., 3:] - y_pred[..., 3:]), axis=1)
 
 
 @tf.keras.utils.register_keras_serializable()
-def gamma_andle_axis_max(y_true: tf.Tensor, y_pred: tf.Tensor):
-    return tf.reduce_max(tf.abs(y_true[..., :3] - y_pred[..., :3]), axis=1)
+def x(y_true: tf.Tensor, y_pred: tf.Tensor):
+    return tf.abs(y_true[..., 0] - y_pred[..., 0])
 
 
 @tf.keras.utils.register_keras_serializable()
-def max_diff_abs(y_true: tf.Tensor, y_pred: tf.Tensor):
-    return tf.reduce_max(tf.abs(y_true - y_pred), axis=1)
+def y(y_true: tf.Tensor, y_pred: tf.Tensor):
+    return tf.abs(y_true[..., 0] - y_pred[..., 0])
+
+
+@tf.keras.utils.register_keras_serializable()
+def z(y_true: tf.Tensor, y_pred: tf.Tensor):
+    return tf.abs(y_true[..., 0] - y_pred[..., 0])
+
+
+@tf.keras.utils.register_keras_serializable()
+def angle_axis_l2(y_true: tf.Tensor, y_pred: tf.Tensor):
+    aa_true = y_true[..., :3]
+    aa_pred = y_pred[..., :3]
+    return tf.sqrt(tf.reduce_sum(tf.square(aa_true - aa_pred)))
+
+
+@tf.keras.utils.register_keras_serializable()
+def gamma_andle_axis_max(y_true: tf.Tensor, y_pred: tf.Tensor):
+    return tf.reduce_max(tf.abs(y_true[..., :3] - y_pred[..., :3]), axis=1)

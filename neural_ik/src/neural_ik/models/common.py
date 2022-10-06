@@ -1,4 +1,5 @@
-from typing import Iterable
+from typing import Iterable, Callable, Any
+from keras import Model
 from keras import layers
 from keras import activations
 from keras.engine.keras_tensor import KerasTensor
@@ -9,6 +10,13 @@ from tf_kinematics.layers.iso_layers import CompactL2Norm, IsometryCompact, Comp
 import tensorflow as tf
 
 LayerList = Iterable[KerasTensor]
+
+
+def decorate_model_in_out(model_build_fn: Callable[[Any], Any]):
+    def wrapper(*args, **kwargs):
+        inputs, outputs = model_build_fn(*args, **kwargs)
+        return Model(inputs=inputs, outputs=outputs, name=model_build_fn.__name__)
+    return wrapper
 
 
 def theta_iters_dist(kin_model_name: str, batch_size: int,
@@ -30,7 +38,7 @@ def fk_compact_iters_dist(fk_compact_iters: LayerList, iso_gaol: KerasTensor) ->
 
 
 def dnn_block(dof, hidden: Iterable[int], x: KerasTensor) -> KerasTensor:
-    activation_fn = tf.nn.leaky_relu
+    activation_fn = tf.nn.relu
     for h in hidden:
         x = layers.Dense(h, activation=activation_fn)(x)
     x = layers.Dense(dof, activation=activation_fn)(x)
