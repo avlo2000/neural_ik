@@ -38,7 +38,7 @@ def tf_homogeneous_transformation(sin, cos, translation):
     return tf.reshape(transformation_matrix, shape=output_shape)
 
 
-@tf.function(input_signature=[tf.TensorSpec(shape=(None, 4, 4))])
+# @tf.function(input_signature=[tf.TensorSpec(shape=(None, 4, 4))])
 def tf_compact(transformation: tf.Tensor):
     trans = transformation[:, :3, 3]
     rot = transformation[:, :3, :3]
@@ -46,22 +46,15 @@ def tf_compact(transformation: tf.Tensor):
     return tf.concat((trans, angle_axis), axis=1)
 
 
-@tf.function(input_signature=[tf.TensorSpec(shape=(None, 6))])
-def tf_isometry(transformation: tf.Tensor):
-    trans = transformation[:, :3, 3]
-    rot = transformation[:, :3, :3]
-    angle_axis = tf_rot_to_angle_axis(rot)
-    return tf.concat((trans, angle_axis), axis=1)
-
-
-@tf.function
+# @tf.function
 def tf_rot_to_angle_axis(rot: tf.Tensor):
-    angle = (tf.linalg.trace(rot[:]) - 1.0) / 2.0
+    angle = tf.acos(tf.clip_by_value((tf.linalg.trace(rot[:]) - 1.0) / 2.0, clip_value_min=-1.0, clip_value_max=1.0))
     angle_axis = (rot[:, 2, 1] - rot[:, 1, 2],
                   rot[:, 0, 2] - rot[:, 2, 0],
                   rot[:, 1, 0] - rot[:, 0, 1])
     angle_axis = tf.convert_to_tensor(angle_axis)
-    return tf.transpose(angle_axis, [1, 0]) * tf.expand_dims(angle, axis=-1)
+    angle = tf.expand_dims(angle, axis=-1)
+    return angle * tf.transpose(angle_axis, [1, 0]) / (2 * tf.sin(angle) + 0.000001)
 
 
 @tf.function

@@ -1,12 +1,9 @@
 from __future__ import absolute_import
 
-from typing import Iterable
-
 import tensorflow as tf
-import numpy as np
 
-from tf_kinematics.urdf_parser.urdf import Robot  # noqa
 from tf_kinematics.fk_solver import solve_static, solve_forward
+from tf_kinematics.urdf_parser.urdf import Robot  # noqa
 
 
 class DLKinematics:
@@ -41,7 +38,7 @@ class DLKinematics:
             solve_static(self._chain), dtype=tf.float32)
 
         self.forward_matrices = tf.Variable(
-            tf.stack([self.static_matrices]*self.batch_size), dtype=tf.float32)
+            tf.stack([self.static_matrices] * self.batch_size), dtype=tf.float32)
 
         # Change dimensions for forward matrices here:
         self.forward_matrices = tf.transpose(
@@ -76,7 +73,7 @@ class DLKinematics:
                     for idx, axis in enumerate(joint.axis):
                         if axis == 1.:
                             theta_indices.append(
-                                [idx, batch, idx+3])
+                                [idx, batch, idx + 3])
 
                 elif joint.type == 'fixed':
                     pass
@@ -101,6 +98,7 @@ class DLKinematics:
 
     def __str__(self):
         return '<{0}>'.format(self.__class__)
+
 
 # Class to transform joint to tensor
 
@@ -154,27 +152,3 @@ class DLKinematicsError(Exception):
             return 'DLKinematicsError: {0}'.format(self.error_message)
         else:
             return 'DLKinematicsError'
-
-
-# from tf_kinematics.urdf import chain_from_urdf_file
-# # Load URDF
-# chain = chain_from_urdf_file(r'C:\Users\Pavlo\source\repos\math\neural_ik\urdf\kuka.urdf')
-#
-# # Create DLKinematics
-# dlkinematics = DLKinematics(
-#    chain,
-#    base_link="calib_kuka_arm_base_link",
-#    end_link="kuka_arm_7_link",
-#    batch_size=2)
-#
-# # Joint configuartion
-# thetas = tf.Variable([0.]*14, dtype=tf.float32)
-# thetas = tf.reshape(thetas, shape=(2, 7))
-#
-# # Forward pass
-# with tf.GradientTape() as tape:
-#     tape.watch(thetas)
-#     result = dlkinematics.forward(tf.reshape(thetas, shape=(-1)))
-# jak = tape.batch_jacobian(result, thetas)
-# print(jak.shape)
-# print(jak)

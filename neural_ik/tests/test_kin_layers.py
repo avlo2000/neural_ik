@@ -12,13 +12,17 @@ class TestForwardKinematics(TestCase):
     def test_call_batch1(self):
         layer = ForwardKinematics("kuka_robot", 1)
         theta_test = tf.random.uniform(shape=(7, 1))
+        layer.build(theta_test.shape)
         res = layer.call(theta_test)
+
         self.assertEqual(res.shape, (1, 4, 4))
 
     def test_call_batch3(self):
         layer = ForwardKinematics("kuka_robot", 3)
         theta_test = tf.random.uniform(shape=(7, 3))
+        layer.build(theta_test.shape)
         res = layer.call(theta_test)
+
         self.assertEqual(res.shape, (3, 4, 4))
 
 
@@ -26,13 +30,17 @@ class TestJacobianForwardKinematics(TestCase):
     def test_call_batch1(self):
         layer = JacobianForwardKinematics("kuka_robot", 1)
         theta_test = tf.random.uniform(shape=(1, 7))
+        layer.build(theta_test.shape)
         res = layer.call(theta_test)
+
         self.assertEqual(res.shape, (1, 6, 8))
 
     def test_call_batch3(self):
         layer = JacobianForwardKinematics("kuka_robot", 3)
         theta_test = tf.random.uniform(shape=(3, 7))
+        layer.build(theta_test.shape)
         res = layer.call(theta_test)
+
         self.assertEqual(res.shape, (3, 6, 8))
 
 
@@ -42,7 +50,9 @@ class TestNewtonIter(TestCase):
         layer = NewtonIter("kuka_robot", bs)
         theta_test = tf.random.uniform(shape=(bs, 7))
         gamma_test = tf.random.uniform(shape=(bs, 6))
+        layer.build([gamma_test.shape, theta_test.shape])
         d_thetas, gamma_actual = layer.call([gamma_test, theta_test])
+
         self.assertEqual(d_thetas.shape, (bs, 7))
         self.assertEqual(gamma_actual.shape, (bs, 6))
 
@@ -51,7 +61,9 @@ class TestNewtonIter(TestCase):
         layer = NewtonIter("kuka_robot", bs)
         theta_test = tf.random.uniform(shape=(bs, 7))
         gamma_test = tf.random.uniform(shape=(bs, 6))
+        layer.build([gamma_test.shape, theta_test.shape])
         d_thetas, gamma_actual = layer.call([gamma_test, theta_test])
+
         self.assertEqual(d_thetas.shape, (bs, 7))
         self.assertEqual(gamma_actual.shape, (bs, 6))
 
@@ -70,6 +82,8 @@ class TestLimitsLerp(TestCase):
         layer = LimitsLerp(0, 1, "kuka_robot", 3)
 
         theta0 = tf.zeros(shape=(3, 7))
+        layer.build([theta0.shape])
+
         lerped0 = layer.call(theta0)
 
         theta1 = tf.ones(shape=(3, 7))

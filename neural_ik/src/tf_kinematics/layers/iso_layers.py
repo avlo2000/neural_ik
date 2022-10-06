@@ -50,7 +50,7 @@ class IsometryMul(Layer):
 
 
 @tf.keras.utils.register_keras_serializable()
-class CompactDiff(Layer):
+class Diff(Layer):
     def call(self, compacts, **kwargs):
         compact1, compact2 = compacts
         # tf.debugging.check_numerics(compact1, f"{self.name}: {compact1}")

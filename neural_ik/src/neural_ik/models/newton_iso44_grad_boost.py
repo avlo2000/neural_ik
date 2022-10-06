@@ -1,19 +1,18 @@
 import tensorflow as tf
-from keras import layers
 from keras import Model
-from keras import losses
+from keras import layers
 from keras.engine.keras_tensor import KerasTensor
 
-from neural_ik.layers import Sum, WeightedSum
-from neural_ik.models.common import theta_iters_dist, dnn_block, linear_identity, decorate_model_in_out
+from neural_ik.layers import WeightedSum
+from neural_ik.models.common import dnn_block, decorate_model_in_out
 from tf_kinematics.kinematic_models_io import load as load_kin
-from tf_kinematics.layers.solve_layers import SolveCompactIterGrad
-from tf_kinematics.layers.iso_layers import IsometryCompact, CompactMSE, Diff
+from tf_kinematics.layers.iso_layers import IsometryCompact, Diff
 from tf_kinematics.layers.kin_layers import ForwardKinematics
+from tf_kinematics.layers.solve_layers import SolveIterGrad
 
 
 @decorate_model_in_out
-def newton_linear_grad_boost(kin_model_name: str, batch_size: int, blocks_count: int) -> (Model, Model):
+def newton_iso44_grad_boost(kin_model_name: str, batch_size: int, blocks_count: int) -> (Model, Model):
     assert blocks_count > 0
 
     dof = load_kin(kin_model_name, batch_size).dof
@@ -22,8 +21,9 @@ def newton_linear_grad_boost(kin_model_name: str, batch_size: int, blocks_count:
     iso_goal_compact = IsometryCompact()(iso_goal_input)
 
     def residual_block(theta_in: KerasTensor, name=None):
-        grad = SolveCompactIterGrad("mse", kin_model_name, batch_size)([iso_goal_compact, theta_in])
-        smart_lr = linear_identity(theta_in)
+        grad = SolveIterGrad("mse", kin_model_name, batch_size)([iso_goal_input, theta_in])
+        theta_dtheta = layers.Concatenate()([grad, theta_in])
+        smart_lr = dnn_block(dof, (32, 32), theta_dtheta)
 
         if name is None:
             return WeightedSum()([grad, smart_lr, theta_in])

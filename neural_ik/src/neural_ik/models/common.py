@@ -5,7 +5,7 @@ from keras import activations
 from keras.engine.keras_tensor import KerasTensor
 
 from tf_kinematics.layers.kin_layers import ForwardKinematics
-from tf_kinematics.layers.iso_layers import CompactL2Norm, IsometryCompact, CompactDiff
+from tf_kinematics.layers.iso_layers import CompactL2Norm, IsometryCompact, Diff
 
 import tensorflow as tf
 
@@ -31,16 +31,17 @@ def theta_iters_dist(kin_model_name: str, batch_size: int,
 
 def fk_compact_iters_dist(fk_compact_iters: LayerList, iso_gaol: KerasTensor) -> KerasTensor:
     iso_goal_compact = IsometryCompact()(iso_gaol)
-    compacts_diff = [CompactDiff()([compact, iso_goal_compact]) for compact in fk_compact_iters]
+    compacts_diff = [Diff()([compact, iso_goal_compact]) for compact in fk_compact_iters]
     norms = [CompactL2Norm(1.0, 1.0)(compact) for compact in compacts_diff]
     concat_norms = layers.Concatenate(axis=1)(norms)
     return concat_norms
 
 
 def dnn_block(dof, hidden: Iterable[int], x: KerasTensor) -> KerasTensor:
-    activation_fn = tf.nn.relu
+    activation_fn = tf.nn.leaky_relu
     for h in hidden:
         x = layers.Dense(h, activation=activation_fn)(x)
+        # x = layers.BatchNormalization()(x)
     x = layers.Dense(dof, activation=activation_fn)(x)
     return x
 

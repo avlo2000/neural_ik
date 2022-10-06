@@ -12,12 +12,12 @@ from tf_kinematics.kinematic_models_io import load
 
 PATH_TO_DATA = Path('../data').absolute()
 PATH_TO_MODELS = Path('../models').absolute()
-KINEMATIC_NAME = 'omnipointer'
+KINEMATIC_NAME = 'kuka'
 DATASET_SIZE_SUF = '2k'
 
 
 def prepare_model() -> keras.Model:
-    model: keras.Model = load_model(PATH_TO_MODELS / 'residual_solver_dnn_dist__omnipointer___0.1__checkpoint.hdf5')
+    model: keras.Model = load_model(PATH_TO_MODELS / 'residual_solver_dnn_dist__kuka___0_1__checkpoint.h5')
     model.compile(loss='mse', metrics=[gamma_xyz_max, gamma_andle_axis_max])
     model.summary()
     return model

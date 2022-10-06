@@ -5,7 +5,7 @@ from keras import Model
 from neural_ik.models.common import theta_iters_dist
 from tf_kinematics.kinematic_models_io import load as load_kin
 from tf_kinematics.layers.kin_layers import ForwardKinematics
-from tf_kinematics.layers.iso_layers import IsometryCompact, CompactDiff
+from tf_kinematics.layers.iso_layers import IsometryCompact, Diff
 
 
 def residual_fk_dnn(kin_model_name: str, batch_size: int, blocks_count: int, corrector_units: int) -> (Model, Model):
@@ -25,7 +25,7 @@ def residual_fk_dnn(kin_model_name: str, batch_size: int, blocks_count: int, cor
         fk = ForwardKinematics(kin_model_name, batch_size)(theta)
         fk_compact = IsometryCompact()(fk)
         iso_goal_compact = IsometryCompact()(iso_goal_input)
-        gamma_diff_compact = CompactDiff()([iso_goal_compact, fk_compact])
+        gamma_diff_compact = Diff()([iso_goal_compact, fk_compact])
         return gamma_diff_compact
 
     def residual_block(theta_in: layers.Layer):
