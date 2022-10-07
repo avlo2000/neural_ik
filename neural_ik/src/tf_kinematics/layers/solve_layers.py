@@ -52,3 +52,11 @@ class SolveIterGrad(_KinematicLayer):
         config = super(SolveIterGrad, self).get_config()
         config.update({'loss_ident': self.loss_ident})
         return config
+
+
+class RNNSolveCompactIterGrad(_KinematicLayer):
+    def __init__(self, loss_ident, kin_model_name: str, batch_size: int, *args, **kwargs):
+        self.__loss = None
+        self.__sys_fn = None
+        self.loss_ident = loss_ident
+        super().__init__(kin_model_name, batch_size, *args, **kwargs)

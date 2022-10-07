@@ -6,7 +6,7 @@ from keras.models import load_model
 
 from data.data_io import read_csv
 from data.tf_kin_data import rawdata_to_dataset
-from neural_ik.metrics import gamma_xyz_max, gamma_andle_axis_max
+from neural_ik.metrics import gamma_dx, gamma_dy, gamma_dz, angle_axis_l2
 from neural_ik.models.newton_dnn_grad_boost import newton_dnn_grad_boost
 from tf_kinematics.kinematic_models_io import load
 
@@ -17,8 +17,8 @@ DATASET_SIZE_SUF = '10k'
 
 
 def prepare_model() -> keras.Model:
-    model: keras.Model = load_model(PATH_TO_MODELS / 'newton_dnn_grad_boost_kuka__0_2.h5')
-    model.compile(loss='mse', metrics=[gamma_xyz_max, gamma_andle_axis_max])
+    model: keras.Model = load_model(PATH_TO_MODELS / 'newton_dnn_grad_boost_10k__kuka___0_3__checkpoint.h5')
+    model.compile(loss='mse', metrics=[gamma_dx, gamma_dy, gamma_dz, angle_axis_l2])
     model.summary()
     return model
 

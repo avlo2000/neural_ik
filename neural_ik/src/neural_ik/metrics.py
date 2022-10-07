@@ -17,18 +17,18 @@ def gamma_xyz_max(y_true: tf.Tensor, y_pred: tf.Tensor):
 
 
 @tf.keras.utils.register_keras_serializable()
-def x(y_true: tf.Tensor, y_pred: tf.Tensor):
+def gamma_dx(y_true: tf.Tensor, y_pred: tf.Tensor):
     return tf.abs(y_true[..., 0] - y_pred[..., 0])
 
 
 @tf.keras.utils.register_keras_serializable()
-def y(y_true: tf.Tensor, y_pred: tf.Tensor):
-    return tf.abs(y_true[..., 0] - y_pred[..., 0])
+def gamma_dy(y_true: tf.Tensor, y_pred: tf.Tensor):
+    return tf.abs(y_true[..., 1] - y_pred[..., 1])
 
 
 @tf.keras.utils.register_keras_serializable()
-def z(y_true: tf.Tensor, y_pred: tf.Tensor):
-    return tf.abs(y_true[..., 0] - y_pred[..., 0])
+def gamma_dz(y_true: tf.Tensor, y_pred: tf.Tensor):
+    return tf.abs(y_true[..., 2] - y_pred[..., 2])
 
 
 @tf.keras.utils.register_keras_serializable()

@@ -9,10 +9,10 @@ class WeightedSum(layers.Layer):
         return w[...] * dt[...] + t[...]
 
 
-class AdamOpt(layers.Layer):
-    def call(self, inputs, **kwargs):
-        w, dt, t = inputs
-        return w[...] * dt[...]  + t[...]
+# class AdamOpt(layers.Layer):
+#     def call(self, inputs, **kwargs):
+#         w, dt, t = inputs
+#         return w[...] * dt[...] + t[...]
 
 
 @tf.keras.utils.register_keras_serializable()

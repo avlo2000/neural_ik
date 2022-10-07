@@ -6,6 +6,7 @@ from data.data_io import read_csv
 from data.tf_kin_data import rawdata_to_dataset
 from neural_ik.losses import PowWeightedMSE
 from neural_ik import metrics
+from neural_ik.models.newton_attention_grad_boost import newton_rnn_grad_boost
 from neural_ik.models.newton_linear_grad_boost import newton_linear_grad_boost
 from neural_ik.models.residual_fk_dnn import residual_fk_dnn
 from neural_ik.models.newton_dnn_grad_boost import newton_dnn_grad_boost
@@ -25,10 +26,10 @@ tf.debugging.disable_check_numerics()
 
 
 def prepare_model(kin_model, batch_size):
-    blocks_count = 32
-    model = newton_dnn_grad_boost(kin_model, batch_size, blocks_count=blocks_count)
+    n_iters = 32
+    model = newton_rnn_grad_boost(kin_model, batch_size, n_iters)
     opt = tf.keras.optimizers.Adam()
-    model.compile(optimizer=opt, loss='mse', metrics=[metrics.x, metrics.y, metrics.z, metrics.angle_axis_l2])
+    model.compile(optimizer=opt, loss='mse', metrics=[metrics.gamma_dx, metrics.gamma_dy, metrics.gamma_dz, metrics.angle_axis_l2])
     model.summary()
     return model
 
@@ -54,12 +55,13 @@ def prepare_data(kin_model, batch_size, validation_split):
 
 
 def train_model(model, x, y, x_val, y_val, batch_size):
-    tag = '_0_3'
-    epochs = 100
+    tag = '_0_1'
+    epochs = 60
 
-    model_path = PATH_TO_MODELS / f'{model.name}_{KINEMATIC_NAME}_{tag}.h5'
-    model_checkpoint_path = PATH_TO_MODELS / f'{model.name}_{DATASET_SIZE_SUF}__{KINEMATIC_NAME}__{tag}__checkpoint.h5'
-    checkpoint = tf.keras.callbacks.ModelCheckpoint(model_checkpoint_path, 'val_loss', verbose=1, save_best_only=True)
+    model_path = PATH_TO_MODELS / f'{model.name}_{KINEMATIC_NAME}_{tag}'
+    model_checkpoint_path = PATH_TO_MODELS / f'{model.name}_{DATASET_SIZE_SUF}__{KINEMATIC_NAME}__{tag}__checkpoint'
+    checkpoint = tf.keras.callbacks.ModelCheckpoint(model_checkpoint_path, 'val_loss',
+                                                    verbose=1, save_best_only=True, save_weights_only=True)
     early_stopping = tf.keras.callbacks.EarlyStopping(patience=5, mode='min', restore_best_weights=True)
     tensorboard_callback = tf.keras.callbacks.TensorBoard(histogram_freq=1, update_freq='batch', log_dir=LOGDIR)
 
@@ -69,7 +71,7 @@ def train_model(model, x, y, x_val, y_val, batch_size):
                         callbacks=[early_stopping, checkpoint, tensorboard_callback],
                         workers=12, use_multiprocessing=True)
 
-    model.save(model_path)
+    model.save(model_path, save_format="tf")
     plot_training_history(history.history, PATH_TO_PICS / f'{model.name}_{KINEMATIC_NAME}_{tag}.png')
 
 
