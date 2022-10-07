@@ -18,7 +18,7 @@ PATH_TO_MODELS = Path('../models').absolute()
 PATH_TO_PICS = Path('../pics').absolute()
 LOGDIR = Path('../logs').absolute()
 KINEMATIC_NAME = 'kuka'
-DATASET_SIZE_SUF = '100k'
+DATASET_SIZE_SUF = '10k'
 
 
 tf.debugging.disable_check_numerics()
@@ -54,11 +54,11 @@ def prepare_data(kin_model, batch_size, validation_split):
 
 
 def train_model(model, x, y, x_val, y_val, batch_size):
-    tag = '_0_2'
-    epochs = 32
+    tag = '_0_3'
+    epochs = 100
 
     model_path = PATH_TO_MODELS / f'{model.name}_{KINEMATIC_NAME}_{tag}.h5'
-    model_checkpoint_path = PATH_TO_MODELS / f'{model.name}__{KINEMATIC_NAME}__{tag}__checkpoint.h5'
+    model_checkpoint_path = PATH_TO_MODELS / f'{model.name}_{DATASET_SIZE_SUF}__{KINEMATIC_NAME}__{tag}__checkpoint.h5'
     checkpoint = tf.keras.callbacks.ModelCheckpoint(model_checkpoint_path, 'val_loss', verbose=1, save_best_only=True)
     early_stopping = tf.keras.callbacks.EarlyStopping(patience=5, mode='min', restore_best_weights=True)
     tensorboard_callback = tf.keras.callbacks.TensorBoard(histogram_freq=1, update_freq='batch', log_dir=LOGDIR)

@@ -48,13 +48,13 @@ def tf_compact(transformation: tf.Tensor):
 
 # @tf.function
 def tf_rot_to_angle_axis(rot: tf.Tensor):
-    angle = tf.acos(tf.clip_by_value((tf.linalg.trace(rot[:]) - 1.0) / 2.0, clip_value_min=-1.0, clip_value_max=1.0))
+    angle = (tf.linalg.trace(rot[:]) - 1.0) / 2.0
     angle_axis = (rot[:, 2, 1] - rot[:, 1, 2],
                   rot[:, 0, 2] - rot[:, 2, 0],
                   rot[:, 1, 0] - rot[:, 0, 1])
     angle_axis = tf.convert_to_tensor(angle_axis)
     angle = tf.expand_dims(angle, axis=-1)
-    return angle * tf.transpose(angle_axis, [1, 0]) / (2 * tf.sin(angle) + 0.000001)
+    return angle * tf.transpose(angle_axis, [1, 0])
 
 
 @tf.function

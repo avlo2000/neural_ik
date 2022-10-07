@@ -13,11 +13,11 @@ from tf_kinematics.kinematic_models_io import load
 PATH_TO_DATA = Path('../data').absolute()
 PATH_TO_MODELS = Path('../models').absolute()
 KINEMATIC_NAME = 'kuka'
-DATASET_SIZE_SUF = '2k'
+DATASET_SIZE_SUF = '10k'
 
 
 def prepare_model() -> keras.Model:
-    model: keras.Model = load_model(PATH_TO_MODELS / 'residual_solver_dnn_dist__kuka___0_1__checkpoint.h5')
+    model: keras.Model = load_model(PATH_TO_MODELS / 'newton_dnn_grad_boost_kuka__0_2.h5')
     model.compile(loss='mse', metrics=[gamma_xyz_max, gamma_andle_axis_max])
     model.summary()
     return model
@@ -30,13 +30,17 @@ def prepare_data(kin_model, batch_size):
     with open(path_to_data, mode='r') as file:
         feature_names, raw_data = read_csv(file)
     thetas, thetas_seed, iso_transforms = rawdata_to_dataset(kin, feature_names, raw_data)
-    x = [thetas_seed, iso_transforms]
-    y = tf.zeros(shape=(len(thetas), 6), dtype=float)
+
+    n = len(thetas)
+    n -= n % batch_size
+
+    x = [thetas_seed[:n], iso_transforms[:n]]
+    y = tf.zeros(shape=(n, 6), dtype=float)
     return x, y
 
 
 def main():
-    batch_size = 1
+    batch_size = 32
     kin_model = f'{KINEMATIC_NAME}_robot'
 
     model = prepare_model()
