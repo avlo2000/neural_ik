@@ -23,12 +23,23 @@ class AttentionGradBoost(tf.keras.Model):
         self.grad = SolveCompactIterGrad("mse", kin_model_name, batch_size)
         self.grad_and_seed = layers.Concatenate()
         self.lr_corrector = [
-            layers.Dense(32, activation=activation, name='lr_corrector0'),
-            layers.Dense(64, activation=activation, name='lr_corrector1'),
-            layers.Dense(128, activation=activation, name='lr_corrector2'),
-            layers.Dense(65, activation=activation, name='lr_corrector3'),
-            layers.Dense(32, activation=activation, name='lr_corrector4'),
-            layers.Dense(dof, activation=activation, name='lr_corrector5')
+            layers.Dense(32, activation=activation),
+            layers.Dropout(0.2),
+            layers.Dense(64, activation=activation),
+            layers.Dropout(0.2),
+            layers.Dense(128, activation=activation),
+            layers.Dropout(0.2),
+            layers.Dense(512, activation=activation),
+            layers.Dropout(0.2),
+            layers.Dense(1024, activation=activation),
+            layers.Dropout(0.2),
+            layers.Dense(512, activation=activation),
+            layers.Dropout(0.2),
+            layers.Dense(65, activation=activation),
+            layers.Dropout(0.2),
+            layers.Dense(32, activation=activation),
+            layers.Dropout(0.2),
+            layers.Dense(dof, activation=activation)
         ]
 
         self.theta_out = WeightedSum(name="final_ik")
