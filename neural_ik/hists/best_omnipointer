@@ -1,0 +1,6 @@
+boosted grad descend:
+    loss: 0.1135 - gamma_dx: 0.0036 - gamma_dy: 0.0036 - gamma_dz: 0.0054 - angle_axis_l2: 0.0427
+grad descend:
+    loss: 2.9804 - gamma_dx: 0.0378 - gamma_dy: 0.0384 - gamma_dz: 0.0260 - angle_axis_l2: 0.3063
+adam optimizer descend:
+    loss: 0.1403 - gamma_dx: 0.0028 - gamma_dy: 0.0027 - gamma_dz: 0.0036 - angle_axis_l2: 0.0354

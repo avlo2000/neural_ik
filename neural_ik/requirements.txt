@@ -2,7 +2,7 @@ dual_quaternions==0.3.1
 keras==2.10.0
 lxml==4.5.0
 matplotlib==3.1.2
-numpy==1.17.4
+numpy>=1.21.6
 PyYAML==6.0
 setuptools==45.2.0
 tensorflow==2.10.0
@@ -10,3 +10,5 @@ tqdm==4.64.0
 transformations==2021.6.6
 urdf_parser_py==0.0.4
 visual_kinematics==0.2.1
+pandas>=1.3.5
+seaborn>=0.11.2

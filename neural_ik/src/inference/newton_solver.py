@@ -4,17 +4,17 @@ import keras
 import numpy as np
 import tensorflow as tf
 import keras.losses as losses
-from keras.optimizers import Adam
+from keras.optimizers import SGD
 
 from inference.tf_solver import TFSolver
-from neural_ik.layers import AdamOpt
+from neural_ik.layers import GradOpt
 from tf_kinematics.layers.iso_layers import IsometryCompact, Diff
 from tf_kinematics.layers.kin_layers import ForwardKinematics
 from tf_kinematics.layers.solve_layers import SolveCompactIterGrad
 from tf_kinematics.sys_solve import solve
 
 
-class AdamModel(keras.Model):
+class NewtonModel(keras.Model):
     def __init__(self, n_iters: int, kin_model_ident: str, batch_size: int, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.n_iters = n_iters
@@ -22,42 +22,32 @@ class AdamModel(keras.Model):
 
         self.iso_compact = IsometryCompact()
         self.grad = SolveCompactIterGrad("mse", kin_model_ident, batch_size)
-        self.inner_optimizer = AdamOpt(beta1=0.9, beta2=0.999, name="final_ik")
+        self.inner_optimizer = GradOpt(name="final_ik")
 
         self.fk_iso = ForwardKinematics(kin_model_ident, batch_size)
         self.fk_compact = IsometryCompact()
         self.fk_diff = Diff()
 
-    @tf.function
-    def cond(self, it, *_):
-        return tf.less(it, self.n_iters)
-
-    @tf.function
-    def body(self, it, theta_i, gamma):
-        grad = self.grad([gamma, theta_i])
-        return it + 1, self.inner_optimizer([grad, 0.01, theta_i]), gamma
-
     def call(self, inputs, training=None, mask=None):
         theta_seed, iso_goal = inputs
         gamma = self.iso_compact(iso_goal)
+        for _ in range(self.n_iters):
+            grad = self.grad([gamma, theta_seed])
+            theta_seed = self.inner_optimizer([grad, 0.01, theta_seed])
 
-        iteration = tf.constant(0)
-        _, theta, _ = tf.while_loop(self.cond, self.body, [iteration, theta_seed, gamma])
-
-        self.inner_optimizer.reset_state()
         fk = self.fk_iso(theta_seed)
         fk_compact = self.fk_compact(fk)
         ft_diff = self.fk_diff([fk_compact, gamma])
         return ft_diff
 
 
-class AdamSolver(TFSolver):
+class NewtonSolver(TFSolver):
     def __init__(self, n_iters: int, loss_confidence: float, kin_model_ident: str, *args, **kwargs):
         super().__init__(kin_model_ident, *args, **kwargs)
         self.loss_confidence = loss_confidence
         self.n_iters = n_iters
 
-        self.__opt = Adam()
+        self.__opt = SGD()
         self.__loss_fn = losses.MeanSquaredError()
         self.__sys_fn = tf.function(lambda theta: self._kernel.forward(tf.reshape(theta, [-1])))
 

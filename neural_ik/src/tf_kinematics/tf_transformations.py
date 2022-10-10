@@ -38,7 +38,7 @@ def tf_homogeneous_transformation(sin, cos, translation):
     return tf.reshape(transformation_matrix, shape=output_shape)
 
 
-# @tf.function(input_signature=[tf.TensorSpec(shape=(None, 4, 4))])
+@tf.function(input_signature=[tf.TensorSpec(shape=(None, 4, 4))])
 def tf_compact(transformation: tf.Tensor):
     trans = transformation[:, :3, 3]
     rot = transformation[:, :3, :3]
@@ -46,7 +46,7 @@ def tf_compact(transformation: tf.Tensor):
     return tf.concat((trans, angle_axis), axis=1)
 
 
-# @tf.function
+@tf.function
 def tf_rot_to_angle_axis(rot: tf.Tensor):
     angle = (tf.linalg.trace(rot[:]) - 1.0) / 2.0
     angle_axis = (rot[:, 2, 1] - rot[:, 1, 2],

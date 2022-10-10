@@ -1,5 +1,5 @@
 from typing import Iterable, Callable, Any
-from keras import Model
+from keras import Model, regularizers
 from keras import layers
 from keras import activations
 from keras.engine.keras_tensor import KerasTensor
@@ -38,11 +38,12 @@ def fk_compact_iters_dist(fk_compact_iters: LayerList, iso_gaol: KerasTensor) ->
 
 
 def dnn_block(dof, hidden: Iterable[int], x: KerasTensor) -> KerasTensor:
-    activation_fn = tf.nn.leaky_relu
+    activation_fn = tf.nn.relu6
+    regularizer = regularizers.L2(0.01)
     for h in hidden:
-        x = layers.Dense(h, activation=activation_fn)(x)
-        # x = layers.BatchNormalization()(x)
-    x = layers.Dense(dof, activation=activation_fn)(x)
+        x = layers.Dense(h, activation=activation_fn, activity_regularizer=regularizer)(x)
+        x = layers.Dropout(0.2)(x)
+    x = layers.Dense(dof, activation=activation_fn, activity_regularizer=regularizer)(x)
     return x
 
 
