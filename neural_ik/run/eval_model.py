@@ -8,6 +8,7 @@ from tqdm import tqdm
 
 from data.data_io import read_csv
 from data.tf_kin_data import rawdata_to_dataset
+from inference.adam_solver import AdamModel
 from neural_ik.metrics import gamma_dx, gamma_dy, gamma_dz, angle_axis_l2
 from neural_ik.models.newton_dnn_grad_boost import newton_dnn_grad_boost
 from tf_kinematics.kinematic_models_io import load
@@ -24,9 +25,10 @@ metrics = [gamma_dx, gamma_dy, gamma_dz, angle_axis_l2]
 
 
 def prepare_model() -> keras.Model:
-    model: keras.Model = load_model(PATH_TO_MODELS / 'newton_rnn_grad_boost_bs64__kuka_40k___0_5_tiny')
+    model: keras.Model = AdamModel(64, 'kuka_robot', BATCH_SIZE) #load_model(PATH_TO_MODELS / 'newton_rnn_grad_boost_bs64__kuka_40k___0_5_tiny')
     model.compile(loss='mse', metrics=metrics)
-    model.summary()
+    # model.build([(BATCH_SIZE, 7), (BATCH_SIZE, 4, 4)])
+    # model.summary()
     return model
 
 
