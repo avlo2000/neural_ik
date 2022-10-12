@@ -28,6 +28,12 @@ class RecurrentGradBoost(tf.keras.Model):
             layers.Dense(dof, activation=activation)
         ], name='gradient_boost')
 
+        self.lr_corrector = keras.Sequential([
+            layers.Dense(32, activation=activation),
+            layers.Dense(32, activation=activation),
+            layers.Dense(dof, activation=activation)
+        ], name='gradient_boost')
+
         self.inner_optimizer = GradOpt(name="final_ik")
 
         self.fk_iso = ForwardKinematics(kin_model_name, batch_size)

@@ -22,7 +22,7 @@ PATH_TO_MODELS = Path('../models').absolute()
 PATH_TO_PICS = Path('../pics').absolute()
 LOGDIR = Path('../logs').absolute()
 HISTS_DIR = Path('../hists').absolute()
-KINEMATIC_NAME = 'human'
+KINEMATIC_NAME = 'kuka'
 DATASET_SIZE_SUF = '10k'
 
 N_ITERS = 64
@@ -107,20 +107,20 @@ def train_model(model, x, y, x_val, y_val, batch_size):
 def main():
     kin_model = f"{KINEMATIC_NAME}_robot"
 
-    # model = prepare_model(kin_model, BATCH_SIZE)
-    # x, y, x_val, y_val = prepare_data(kin_model, BATCH_SIZE, 0.3)
-    # history, model_full_name = train_model(model, x, y, x_val, y_val, BATCH_SIZE)
+    model = prepare_model(kin_model, BATCH_SIZE)
+    x, y, x_val, y_val = prepare_data(kin_model, BATCH_SIZE, 0.3)
+    history, model_full_name = train_model(model, x, y, x_val, y_val, BATCH_SIZE)
 
     x_test, y_test = prepare_test_data(kin_model, BATCH_SIZE)
 
-    # eval_res = model.evaluate(x=x_test, y=y_test, batch_size=BATCH_SIZE, return_dict=True)
-    # print(eval_res)
+    eval_res = model.evaluate(x=x_test, y=y_test, batch_size=BATCH_SIZE, return_dict=True)
+    print(eval_res)
 
-    # newt_model = NewtonModel(N_ITERS, kin_model, BATCH_SIZE)
-    # newt_model.compile(loss=CompactL2L2(1.0, 10.0), metrics=[metrics.gamma_dx, metrics.gamma_dy,
-    #                                                          metrics.gamma_dz, metrics.angle_axis_l2])
-    # eval_res = newt_model.evaluate(x=x_test, y=y_test, batch_size=BATCH_SIZE)
-    # print(eval_res)
+    newt_model = NewtonModel(N_ITERS, kin_model, BATCH_SIZE)
+    newt_model.compile(loss=CompactL2L2(1.0, 10.0), metrics=[metrics.gamma_dx, metrics.gamma_dy,
+                                                             metrics.gamma_dz, metrics.angle_axis_l2])
+    eval_res = newt_model.evaluate(x=x_test, y=y_test, batch_size=BATCH_SIZE)
+    print(eval_res)
 
     adam_model = AdamModel(N_ITERS, kin_model, BATCH_SIZE)
     adam_model.compile(loss=CompactL2L2(1.0, 10.0), metrics=[metrics.gamma_dx, metrics.gamma_dy,
