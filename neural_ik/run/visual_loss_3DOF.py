@@ -13,10 +13,7 @@ def func(theta1, theta2, theta3, y_goal):
     r3 = np.array([[np.cos(theta3), -np.sin(theta3), 1.0],
                    [np.sin(theta3), np.cos(theta3), 1.0],
                    [0.0, 0.0, 1.0]])
-    r = r1 @ r2 @ r3
-    y = (r @ np.ones(shape=(3, 1)))
-    ang_cos = (np.trace(r) - 1.0) / 2
-    y[2, 0] = ang_cos
+    y = (r1 @ r2 @ r3 @ np.ones(shape=(3, 1)))
 
     z = loss_l2(y[:3], y_goal)
     return z

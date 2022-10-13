@@ -1,18 +1,16 @@
 import numpy as np
+import tensorflow as tf
 from mpl_toolkits import mplot3d
 import matplotlib.pyplot as plt
+from tf_kinematics.kinematic_models_io import load
+from tf_kinematics.dlkinematics import DLKinematics
 
 
-def func(theta1, theta2, y_goal):
-    r1 = np.array([[np.cos(theta1), -np.sin(theta1), 1.0],
-                   [np.sin(theta1), np.cos(theta1), 0.0],
-                   [0.0, 0.0, 1.0]])
-    r2 = np.array([[np.cos(theta2), -np.sin(theta2), 1.0],
-                   [np.sin(theta2), np.cos(theta2), 0.0],
-                   [0.0, 0.0, 1.0]])
-    y = (r1 @ r2 @ np.ones(shape=(3, 1)))
-
-    z = loss_l2(y[:2], y_goal)
+def func(theta1: tf.Tensor, theta2: tf.Tensor, kin: DLKinematics):
+    def fk(t1, t2):
+        thetas = tf.convert_to_tensor([t1, t2, 1.0, 1.0, 1.0, 1.0, 1.0])
+        return kin.forward(thetas)
+    z = fk(theta1, theta2)
     return z
 
 
@@ -41,19 +39,18 @@ def loss_l1l1(y, y_goal):
 
 
 def main():
+    kin = load('kuka_robot', 1)
+
     fig = plt.figure(figsize=(16, 14))
     ax = plt.axes(projection='3d')
 
-    theta1 = np.arange(-np.pi, np.pi + .1, 0.1)
-    theta2 = np.arange(-np.pi, np.pi + .1, 0.1)
+    theta1 = tf.range(-np.pi, np.pi + .1, 0.1)
+    theta2 = tf.range(-np.pi, np.pi + .1, 0.1)
 
-    surf = None
-    for step in np.arange(0, 10.0, 3.0):
-        x, y = np.meshgrid(theta1, theta2)
-        z = func(x, y, np.array([step, step]))
-        surf = ax.plot_surface(x, y, z, cmap='Reds')
+    theta1, theta2 = tf.meshgrid(theta1, theta2)
+    func(theta1, theta2, kin)
 
-    fig.colorbar(surf)
+    # fig.colorbar(surf)
     ax.set_xlabel('theta1', labelpad=50)
     ax.set_ylabel('theta2', labelpad=50)
     ax.set_zlabel('loss', labelpad=50)
