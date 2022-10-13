@@ -25,7 +25,7 @@ PATH_TO_PICS = Path('../pics').absolute()
 LOGDIR = Path('../logs').absolute()
 HISTS_DIR = Path('../hists').absolute()
 KINEMATIC_NAME = 'kuka'
-DATASET_SIZE_SUF = '30k'
+DATASET_SIZE_SUF = '10k'
 
 N_ITERS = 64
 BATCH_SIZE = 32
@@ -36,7 +36,7 @@ print(tf.config.list_physical_devices())
 
 
 def prepare_model(kin_model, batch_size):
-    model = momentum_recurrent_grad_boost(kin_model, batch_size, N_ITERS)
+    model = adam_recurrent_grad_boost(kin_model, batch_size, N_ITERS)
     opt = tf.keras.optimizers.Adam()
     model.compile(optimizer=opt, loss=CompactL2L2(1.0, 10.0), metrics=[metrics.gamma_dx, metrics.gamma_dy,
                                                                        metrics.gamma_dz, metrics.angle_axis_l2])
@@ -81,7 +81,7 @@ def prepare_test_data(kin_model, batch_size):
 
 
 def train_model(model, x, y, x_val, y_val, batch_size):
-    tag = '_0_3_tiny'
+    tag = '_0_1'
     epochs = 20
 
     model_full_name = f'{model.name}_bs{BATCH_SIZE}__{KINEMATIC_NAME}_{DATASET_SIZE_SUF}__{tag}'
