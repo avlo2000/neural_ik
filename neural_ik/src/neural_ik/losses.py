@@ -61,3 +61,24 @@ class CompactL2L2(Loss):
         config.update({'xyz_weight': self.xyz_weight})
         config.update({'aa_weight': self.aa_weight})
         return config
+
+
+@tf.keras.utils.register_keras_serializable()
+class CompactL4L4(Loss):
+    def __init__(self, xyz_weight: float = 1.0, aa_weight: float = 1.0):
+        super().__init__()
+        self.xyz_weight = xyz_weight
+        self.aa_weight = aa_weight
+
+    @tf.function
+    def call(self, y_true, y_pred):
+        xyz_diff = tf.pow(tf.reduce_sum(tf.square(y_true[..., :3] - y_pred[..., :3]), axis=0), 4)
+        aa_diff = tf.pow(tf.reduce_sum(tf.square(y_true[..., 3:] - y_pred[..., 3:]), axis=0), 4)
+
+        return self.xyz_weight * xyz_diff + self.aa_weight * aa_diff
+
+    def get_config(self):
+        config = dict()
+        config.update({'xyz_weight': self.xyz_weight})
+        config.update({'aa_weight': self.aa_weight})
+        return config

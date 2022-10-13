@@ -11,7 +11,7 @@ from tf_kinematics.layers.kin_layers import ForwardKinematics
 from tf_kinematics.layers.solve_layers import SolveCompactIterGrad
 
 
-class RecurrentGradBoost(tf.keras.Model):
+class GDRecurrentGradBoost(tf.keras.Model):
     def __init__(self, kin_model_name: str, batch_size: int, n_iters: int, *args, **kwargs):
         super().__init__(*args, **kwargs)
         dof = load_kin(kin_model_name, batch_size).dof
@@ -51,7 +51,7 @@ class RecurrentGradBoost(tf.keras.Model):
 
 def newton_recurrent_grad_boost(kin_model_name: str, batch_size: int, n_iters: int) -> (Model, Model):
     assert n_iters > 0
-    model = RecurrentGradBoost(kin_model_name, batch_size, n_iters, name='newton_rnn_grad_boost')
+    model = GDRecurrentGradBoost(kin_model_name, batch_size, n_iters, name='newton_rnn_grad_boost')
 
     dof = load_kin(kin_model_name, batch_size).dof
     model.build([(batch_size, dof), (batch_size, 4, 4)])

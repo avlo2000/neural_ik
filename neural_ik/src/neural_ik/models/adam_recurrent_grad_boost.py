@@ -12,7 +12,7 @@ from tf_kinematics.layers.kin_layers import ForwardKinematics
 from tf_kinematics.layers.solve_layers import SolveCompactIterGrad
 
 
-class MomentumRecurrentGradBoost(tf.keras.Model):
+class AdamRecurrentGradBoost(tf.keras.Model):
     def __init__(self, kin_model_name: str, batch_size: int, n_iters: int, *args, **kwargs):
         super().__init__(*args, **kwargs)
         dof = load_kin(kin_model_name, batch_size).dof
@@ -24,12 +24,12 @@ class MomentumRecurrentGradBoost(tf.keras.Model):
         self.grad_gamma_and_seed = layers.Concatenate()
 
         self.lr_corrector = keras.Sequential([
-            layers.Dense(16, activation=activation),
             layers.Dense(32, activation=activation),
-            layers.Dense(dof, activation=activation)
+            layers.Dense(64, activation=activation),
+            layers.Dense(dof, activation=tf.nn.sigmoid)
         ], name='gradient_boost')
 
-        self.grad_opt = AdamOpt(beta1=0.99, beta2=0.99, name='final_ik')
+        self.grad_opt = AdamOpt(beta1=0.9, beta2=0.999, name="final_ik")
 
         self.fk_iso = ForwardKinematics(kin_model_name, batch_size)
         self.fk_compact = IsometryCompact()
@@ -51,9 +51,9 @@ class MomentumRecurrentGradBoost(tf.keras.Model):
         return ft_diff
 
 
-def momentum_recurrent_grad_boost(kin_model_name: str, batch_size: int, n_iters: int) -> (Model, Model):
+def adam_recurrent_grad_boost(kin_model_name: str, batch_size: int, n_iters: int) -> Model:
     assert n_iters > 0
-    model = MomentumRecurrentGradBoost(kin_model_name, batch_size, n_iters, name='momentum_recurrent_grad_boost')
+    model = AdamRecurrentGradBoost(kin_model_name, batch_size, n_iters, name='adam_recurrent_grad_boost')
 
     dof = load_kin(kin_model_name, batch_size).dof
     model.build([(batch_size, dof), (batch_size, 4, 4)])

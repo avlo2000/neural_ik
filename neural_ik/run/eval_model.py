@@ -27,7 +27,6 @@ metrics = [gamma_dx, gamma_dy, gamma_dz, angle_axis_l2]
 def prepare_model() -> keras.Model:
     model: keras.Model = AdamModel(64, 'kuka_robot', BATCH_SIZE) #load_model(PATH_TO_MODELS / 'newton_rnn_grad_boost_bs64__kuka_40k___0_5_tiny')
     model.compile(loss='mse', metrics=metrics)
-    # model.build([(BATCH_SIZE, 7), (BATCH_SIZE, 4, 4)])
     # model.summary()
     return model
 
