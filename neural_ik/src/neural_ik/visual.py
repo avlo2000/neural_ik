@@ -8,8 +8,8 @@ from matplotlib.widgets import Slider
 
 
 def plot_training_history(history: Mapping[str, Iterable[float]], save_path=None):
-    mng = plt.get_current_fig_manager()
-    mng.resize(*mng.window.maxsize())
+    # mng = plt.get_current_fig_manager()
+    # mng.resize(*mng.window.maxsize())
 
     train_hist = dict()
     for key, val in history.items():

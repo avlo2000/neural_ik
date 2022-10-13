@@ -20,14 +20,13 @@ PATH_TO_DATA = Path('../data').absolute()
 PATH_TO_MODELS = Path('../models').absolute()
 KINEMATIC_NAME = 'kuka'
 DATASET_SIZE_SUF = '10k'
-BATCH_SIZE = 64
+BATCH_SIZE = 32
 metrics = [gamma_dx, gamma_dy, gamma_dz, angle_axis_l2]
 
 
 def prepare_model() -> keras.Model:
-    model: keras.Model = AdamModel(64, 'kuka_robot', BATCH_SIZE) #load_model(PATH_TO_MODELS / 'newton_rnn_grad_boost_bs64__kuka_40k___0_5_tiny')
+    model: keras.Model = load_model(PATH_TO_MODELS / 'momentum_recurrent_grad_boost_bs32__kuka_30k___0_3_tiny')
     model.compile(loss='mse', metrics=metrics)
-    # model.summary()
     return model
 
 
@@ -75,7 +74,7 @@ def main():
         std = np.repeat(vals.std(axis=0), len(vals))
         plt.errorbar(np.arange(0, len(vals)), mean, yerr=std, fmt='go--', alpha=0.05)
         plt.text(0, mx_y, f'Mean: {mean[0]:.3f}')
-        plt.text(0, mx_y - std[0], f'StdDev: {std[0]:.3f}')
+        plt.text(0, mx_y - 0.02, f'StdDev: {std[0]:.3f}')
 
     plt.show()
 

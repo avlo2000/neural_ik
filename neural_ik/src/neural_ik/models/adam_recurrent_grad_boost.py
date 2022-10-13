@@ -2,10 +2,8 @@ import keras
 import tensorflow as tf
 from keras import Model
 from keras import layers
-from keras import regularizers
 
-from neural_ik.layers import AdamOpt, MomentumOpt, GradOpt
-from neural_ik.losses import CompactL2L2, CompactL4L4
+from neural_ik.layers import AdamOpt
 from tf_kinematics.kinematic_models_io import load as load_kin
 from tf_kinematics.layers.iso_layers import IsometryCompact, Diff
 from tf_kinematics.layers.kin_layers import ForwardKinematics
@@ -24,7 +22,10 @@ class AdamRecurrentGradBoost(tf.keras.Model):
         self.grad_gamma_and_seed = layers.Concatenate()
 
         self.lr_corrector = keras.Sequential([
-            layers.Dense(32, activation=activation),
+            layers.Dense(64, activation=activation),
+            layers.Dense(128, activation=activation),
+            layers.Dense(1024, activation=activation),
+            layers.Dense(128, activation=activation),
             layers.Dense(64, activation=activation),
             layers.Dense(dof, activation=tf.nn.sigmoid)
         ], name='gradient_boost')

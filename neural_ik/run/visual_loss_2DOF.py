@@ -36,6 +36,10 @@ def loss_l1(y, y_goal):
     return np.sum(np.abs(y - y_goal))
 
 
+def loss_l1l1(y, y_goal):
+    return np.sum(np.abs(y - y_goal))
+
+
 def main():
     fig = plt.figure(figsize=(16, 14))
     ax = plt.axes(projection='3d')

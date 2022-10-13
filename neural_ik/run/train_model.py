@@ -9,8 +9,8 @@ from inference.adam_solver import AdamModel
 from inference.newton_solver import NewtonModel
 from neural_ik.losses import CompactXYZL2CosAA, CompactL2L2, CompactL4L4
 from neural_ik import metrics
-from neural_ik.models.adam_recurrent_grad_boost import momentum_recurrent_grad_boost
-from neural_ik.models.momentum_recurrent_grad_boost import adam_recurrent_grad_boost
+from neural_ik.models.adam_recurrent_grad_boost import adam_recurrent_grad_boost
+from neural_ik.models.momentum_recurrent_grad_boost import momentum_recurrent_grad_boost
 from neural_ik.models.newton_recurrent_grad_boost import newton_recurrent_grad_boost
 from neural_ik.models.newton_linear_grad_boost import newton_linear_grad_boost
 from neural_ik.models.residual_fk_dnn import residual_fk_dnn
@@ -25,7 +25,7 @@ PATH_TO_PICS = Path('../pics').absolute()
 LOGDIR = Path('../logs').absolute()
 HISTS_DIR = Path('../hists').absolute()
 KINEMATIC_NAME = 'kuka'
-DATASET_SIZE_SUF = '10k'
+DATASET_SIZE_SUF = '30k'
 
 N_ITERS = 64
 BATCH_SIZE = 32
@@ -36,7 +36,7 @@ print(tf.config.list_physical_devices())
 
 
 def prepare_model(kin_model, batch_size):
-    model = adam_recurrent_grad_boost(kin_model, batch_size, N_ITERS)
+    model = momentum_recurrent_grad_boost(kin_model, batch_size, N_ITERS)
     opt = tf.keras.optimizers.Adam()
     model.compile(optimizer=opt, loss=CompactL2L2(1.0, 10.0), metrics=[metrics.gamma_dx, metrics.gamma_dy,
                                                                        metrics.gamma_dz, metrics.angle_axis_l2])
@@ -100,10 +100,6 @@ def train_model(model, x, y, x_val, y_val, batch_size):
 
     model.save(model_path, save_format="tf")
 
-    path_to_history_json = HISTS_DIR / f"{model_full_name}.csv"
-    with open(path_to_history_json, mode='w') as f:
-        json.dump(history.history, f)
-
     return history.history, model_full_name
 
 
@@ -117,19 +113,16 @@ def main():
     x_test, y_test = prepare_test_data(kin_model, BATCH_SIZE)
 
     eval_res = model.evaluate(x=x_test, y=y_test, batch_size=BATCH_SIZE, return_dict=True)
-    print(eval_res)
+    print(f"Trained model:\n {eval_res}")
+    path_to_history_json = HISTS_DIR / f"{model_full_name}.json"
+    with open(path_to_history_json, mode='w') as f:
+        json.dump(eval_res, f)
 
-    # newt_model = NewtonModel(N_ITERS, kin_model, BATCH_SIZE)
-    # newt_model.compile(loss=CompactL2L2(1.0, 10.0), metrics=[metrics.gamma_dx, metrics.gamma_dy,
-    #                                                          metrics.gamma_dz, metrics.angle_axis_l2])
-    # eval_res = newt_model.evaluate(x=x_test, y=y_test, batch_size=BATCH_SIZE)
-    # print(eval_res)
-    #
-    # adam_model = AdamModel(N_ITERS, kin_model, BATCH_SIZE)
-    # adam_model.compile(loss=CompactL2L2(1.0, 10.0), metrics=[metrics.gamma_dx, metrics.gamma_dy,
-    #                                                          metrics.gamma_dz, metrics.angle_axis_l2])
-    # eval_res = adam_model.evaluate(x=x_test, y=y_test, batch_size=BATCH_SIZE)
-    # print(eval_res)
+    adam_model = AdamModel(N_ITERS, kin_model, BATCH_SIZE)
+    adam_model.compile(loss=CompactL2L2(1.0, 10.0), metrics=[metrics.gamma_dx, metrics.gamma_dy,
+                                                             metrics.gamma_dz, metrics.angle_axis_l2])
+    eval_res = adam_model.evaluate(x=x_test, y=y_test, batch_size=BATCH_SIZE, return_dict=True)
+    print(f"Adam model:\n {eval_res}")
 
     plot_training_history(history, PATH_TO_PICS / f'{model_full_name}.png')
 
