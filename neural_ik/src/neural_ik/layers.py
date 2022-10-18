@@ -34,7 +34,7 @@ class MomentumOpt(layers.Layer):
     def build(self, input_shape):
         grad_shape, _, _ = input_shape
         self.shape = grad_shape
-        self.m = tf.Variable(tf.zeros(self.shape, tf.float32), trainable=False)
+        self.m = tf.Variable(tf.zeros(self.shape, tf.float64), trainable=False)
 
     @tf.function
     def call(self, inputs, **kwargs):
@@ -55,7 +55,7 @@ class AdamOpt(layers.Layer):
         self.m = None
         self.v = None
         self.shape = None
-        self.timestamp = None
+        self.timestamp = 0
         self.epsilon = epsilon
         self.beta1 = beta1
         self.beta2 = beta2
@@ -63,8 +63,8 @@ class AdamOpt(layers.Layer):
     def build(self, input_shape):
         grad_shape, _, _ = input_shape
         self.shape = grad_shape
-        self.m = tf.Variable(tf.zeros(self.shape, tf.float32), trainable=False)
-        self.v = tf.Variable(tf.zeros(self.shape, tf.float32), trainable=False)
+        self.m = tf.Variable(tf.zeros(self.shape, tf.float64), trainable=False)
+        self.v = tf.Variable(tf.zeros(self.shape, tf.float64), trainable=False)
         self.timestamp = 0
 
     def call(self, inputs, **kwargs):

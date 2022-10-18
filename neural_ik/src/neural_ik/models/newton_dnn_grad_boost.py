@@ -13,7 +13,7 @@ from tf_kinematics.layers.solve_layers import SolveCompactIterGrad
 
 
 @decorate_model_in_out
-def newton_dnn_grad_boost(kin_model_name: str, batch_size: int, blocks_count: int) -> (Model, Model):
+def newton_dnn_grad_boost(kin_model_name: str, batch_size: int, blocks_count: int) -> Model:
     assert blocks_count > 0
 
     dof = load_kin(kin_model_name, batch_size).dof

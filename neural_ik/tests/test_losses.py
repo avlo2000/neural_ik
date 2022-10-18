@@ -6,8 +6,8 @@ import tensorflow as tf
 class TestExpWeightedMSE(TestCase):
     def test_call_batch1(self):
         n = 10
-        y_pred = tf.ones(shape=(1, n), dtype=tf.float32)
-        y_expected = tf.zeros(shape=(1, n), dtype=tf.float32)
+        y_pred = tf.ones(shape=(1, n), dtype=tf.float64)
+        y_expected = tf.zeros(shape=(1, n), dtype=tf.float64)
         loss = PowWeightedMSE()
         res = loss.call(y_pred, y_expected)
         res_transitive = loss.call(y_expected, y_pred)
@@ -16,8 +16,8 @@ class TestExpWeightedMSE(TestCase):
 
     def test_call_batch3(self):
         n = 10
-        y_pred = tf.ones(shape=(3, n), dtype=tf.float32)
-        y_expected = tf.zeros(shape=(3, n), dtype=tf.float32)
+        y_pred = tf.ones(shape=(3, n), dtype=tf.float64)
+        y_expected = tf.zeros(shape=(3, n), dtype=tf.float64)
         loss = PowWeightedMSE()
         res = loss.call(y_pred, y_expected)
         res_transitive = loss.call(y_expected, y_pred)

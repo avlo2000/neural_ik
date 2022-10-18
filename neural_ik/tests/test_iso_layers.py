@@ -22,7 +22,7 @@ class TestCompactL2Norm(TestCase):
     def test_call_batch16(self):
         batch_size = 16
         layer = CompactL2Norm(1.0, 1.0)
-        test_compact = tf.constant([0] * batch_size * 6, dtype=tf.float32, shape=(batch_size, 6))
+        test_compact = tf.constant([0] * batch_size * 6, dtype=tf.float64, shape=(batch_size, 6))
         res = layer.call(test_compact)
         self.assertEqual(res.shape, (batch_size, 1))
         self.assertTrue(all((res == 0.0).numpy()))
@@ -30,7 +30,7 @@ class TestCompactL2Norm(TestCase):
     def test_call_batch1(self):
         batch_size = 1
         layer = CompactL2Norm(1.0, 1.0)
-        test_compact = tf.constant([0] * batch_size * 6, dtype=tf.float32, shape=(batch_size, 6))
+        test_compact = tf.constant([0] * batch_size * 6, dtype=tf.float64, shape=(batch_size, 6))
         res = layer.call(test_compact)
         self.assertEqual(res.shape, (batch_size, 1))
         self.assertTrue(all((res == 0.0).numpy()))
@@ -40,7 +40,7 @@ class TestCompactL1Norm(TestCase):
     def test_call_batch16(self):
         batch_size = 16
         layer = CompactL1Norm(1.0, 1.0)
-        test_compact = tf.constant([0] * batch_size * 6, dtype=tf.float32, shape=(batch_size, 6))
+        test_compact = tf.constant([0] * batch_size * 6, dtype=tf.float64, shape=(batch_size, 6))
         res = layer.call(test_compact)
         self.assertEqual(res.shape, (batch_size, 1))
         self.assertTrue(all((res == 0.0).numpy()))
@@ -48,7 +48,7 @@ class TestCompactL1Norm(TestCase):
     def test_call_batch1(self):
         batch_size = 1
         layer = CompactL1Norm(1.0, 1.0)
-        test_compact = tf.constant([0] * batch_size * 6, dtype=tf.float32, shape=(batch_size, 6))
+        test_compact = tf.constant([0] * batch_size * 6, dtype=tf.float64, shape=(batch_size, 6))
         res = layer.call(test_compact)
         self.assertEqual(res.shape, (batch_size, 1))
         self.assertTrue(all((res == 0.0).numpy()))

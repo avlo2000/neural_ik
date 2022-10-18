@@ -6,16 +6,18 @@ import tensorflow as tf
 from data.data_io import read_csv
 from data.tf_kin_data import rawdata_to_dataset
 from inference.adam_solver import AdamModel
-from inference.newton_solver import NewtonModel
+from inference.gd_solver import GDModel
+from inference.momentum_solver import MomentumModel
 from neural_ik.losses import CompactXYZL2CosAA, CompactL2L2, CompactL4L4
 from neural_ik import metrics
 from neural_ik.models.adam_recurrent_grad_boost import adam_recurrent_grad_boost
 from neural_ik.models.momentum_recurrent_grad_boost import momentum_recurrent_grad_boost
-from neural_ik.models.newton_recurrent_grad_boost import newton_recurrent_grad_boost
-from neural_ik.models.newton_linear_grad_boost import newton_linear_grad_boost
+from neural_ik.models.gd_recurrent_grad_boost import gd_recurrent_grad_boost
+from neural_ik.models.qp_recurrent_grad_boost import qp_recurrent_grad_boost
 from neural_ik.models.residual_fk_dnn import residual_fk_dnn
 from neural_ik.models.newton_dnn_grad_boost import newton_dnn_grad_boost
-from neural_ik.models.newton_iso44_grad_boost import newton_iso44_grad_boost
+
+from neural_ik.models.simpe_dnn import simple_dnn
 from neural_ik.visual import plot_training_history
 from tf_kinematics.kinematic_models_io import load
 
@@ -27,16 +29,17 @@ HISTS_DIR = Path('../hists').absolute()
 KINEMATIC_NAME = 'kuka'
 DATASET_SIZE_SUF = '10k'
 
-N_ITERS = 64
+N_ITERS = 100
 BATCH_SIZE = 32
 
 tf.config.set_visible_devices([], 'GPU')
 tf.debugging.disable_check_numerics()
+tf.keras.backend.set_floatx('float64')
 print(tf.config.list_physical_devices())
 
 
 def prepare_model(kin_model, batch_size):
-    model = adam_recurrent_grad_boost(kin_model, batch_size, N_ITERS)
+    model = momentum_recurrent_grad_boost(kin_model, batch_size, N_ITERS)
     opt = tf.keras.optimizers.Adam()
     model.compile(optimizer=opt, loss=CompactL2L2(1.0, 10.0), metrics=[metrics.gamma_dx, metrics.gamma_dy,
                                                                        metrics.gamma_dz, metrics.angle_axis_l2])
@@ -81,7 +84,7 @@ def prepare_test_data(kin_model, batch_size):
 
 
 def train_model(model, x, y, x_val, y_val, batch_size):
-    tag = '_0_1'
+    tag = '_100ITERS_BIG_1_1'
     epochs = 20
 
     model_full_name = f'{model.name}_bs{BATCH_SIZE}__{KINEMATIC_NAME}_{DATASET_SIZE_SUF}__{tag}'
@@ -118,7 +121,13 @@ def main():
     with open(path_to_history_json, mode='w') as f:
         json.dump(eval_res, f)
 
-    adam_model = AdamModel(N_ITERS, kin_model, BATCH_SIZE)
+    adam_model = MomentumModel(kin_model, BATCH_SIZE, N_ITERS)
+    adam_model.compile(loss=CompactL2L2(1.0, 10.0), metrics=[metrics.gamma_dx, metrics.gamma_dy,
+                                                             metrics.gamma_dz, metrics.angle_axis_l2])
+    eval_res = adam_model.evaluate(x=x_test, y=y_test, batch_size=BATCH_SIZE, return_dict=True)
+    print(f"Momentum model:\n {eval_res}")
+
+    adam_model = AdamModel(kin_model, BATCH_SIZE, N_ITERS)
     adam_model.compile(loss=CompactL2L2(1.0, 10.0), metrics=[metrics.gamma_dx, metrics.gamma_dy,
                                                              metrics.gamma_dz, metrics.angle_axis_l2])
     eval_res = adam_model.evaluate(x=x_test, y=y_test, batch_size=BATCH_SIZE, return_dict=True)

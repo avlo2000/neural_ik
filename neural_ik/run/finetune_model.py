@@ -69,7 +69,7 @@ def main():
         feature_names, raw_data = read_csv(file)
     thetas, thetas_seed, iso_transforms = rawdata_to_dataset(kin, feature_names, raw_data)
     x = [thetas_seed, iso_transforms]
-    y = tf.zeros(shape=(len(thetas), model_dist.outputs[0].shape[-1]), dtype=tf.float32)
+    y = tf.zeros(shape=(len(thetas), model_dist.outputs[0].shape[-1]), dtype=tf.float64)
 
     tag = '__catch_NaNs'
     model_dist_path = PATH_TO_MODELS / f'{model_dist.name}_{kin_model}_{tag}_tuned.hdf5'

@@ -33,8 +33,6 @@ class AdamRecurrentGradBoost(tf.keras.Model):
             layers.Dense(dof, activation='sigmoid')
         ], name='beta_boost')
 
-
-
         # self.grad_opt = AdamOpt(beta1=0.9, beta2=0.999, name="final_ik")
 
         self.fk_iso = ForwardKinematics(kin_model_name, batch_size)

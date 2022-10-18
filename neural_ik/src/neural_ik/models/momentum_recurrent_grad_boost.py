@@ -3,7 +3,7 @@ import tensorflow as tf
 from keras import Model
 from keras import layers
 
-from neural_ik.layers import MomentumOpt
+from neural_ik.losses import loss_l2, loss_l4, loss_l_inf, loss_l2l2
 from tf_kinematics.kinematic_models_io import load as load_kin
 from tf_kinematics.layers.iso_layers import IsometryCompact, Diff
 from tf_kinematics.layers.kin_layers import ForwardKinematics
@@ -22,14 +22,19 @@ class MomentumRecurrentGradBoost(tf.keras.Model):
         self.grad_gamma_and_seed = layers.Concatenate()
 
         self.lr_corrector = keras.Sequential([
-            layers.Dense(16, activation=activation),
+            layers.Dense(32, activation=activation),
+            layers.Dense(64, activation=activation),
+            layers.Dense(128, activation=activation),
+            layers.Dense(256, activation=activation),
+            layers.Dense(128, activation=activation),
+            layers.Dense(64, activation=activation),
             layers.Dense(32, activation=activation),
             layers.Dense(dof, activation=activation)
         ], name='gradient_boost')
 
         self.beta_corrector = keras.Sequential([
-            layers.Dense(16, activation=activation),
             layers.Dense(32, activation=activation),
+            layers.Dense(64, activation=activation),
             layers.Dense(dof, activation='sigmoid')
         ], name='beta_boost')
 
@@ -51,8 +56,8 @@ class MomentumRecurrentGradBoost(tf.keras.Model):
             lr = self.lr_corrector(grad_gamma_and_seed)
             beta = self.beta_corrector(grad_gamma_and_seed)
 
-            lr = tf.clip_by_value(lr, clip_value_min=0.0001, clip_value_max=0.9999)
-            beta = tf.clip_by_value(beta, clip_value_min=0.0001, clip_value_max=0.9999)
+            lr = tf.clip_by_value(lr, clip_value_min=0.0001, clip_value_max=6.9999)
+            beta = tf.clip_by_value(beta, clip_value_min=0.5001, clip_value_max=0.9999)
             momentum = (1.0 - beta) * momentum + beta * grad
 
             theta_seed = theta_seed - lr * momentum
@@ -63,7 +68,7 @@ class MomentumRecurrentGradBoost(tf.keras.Model):
         return ft_diff
 
 
-def momentum_recurrent_grad_boost(kin_model_name: str, batch_size: int, n_iters: int) -> (Model, Model):
+def momentum_recurrent_grad_boost(kin_model_name: str, batch_size: int, n_iters: int) -> Model:
     assert n_iters > 0
     model = MomentumRecurrentGradBoost(kin_model_name, batch_size, n_iters, name='momentum_recurrent_grad_boost')
 

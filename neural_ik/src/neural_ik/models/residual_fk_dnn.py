@@ -8,7 +8,7 @@ from tf_kinematics.layers.kin_layers import ForwardKinematics
 from tf_kinematics.layers.iso_layers import IsometryCompact, Diff
 
 
-def residual_fk_dnn(kin_model_name: str, batch_size: int, blocks_count: int, corrector_units: int) -> (Model, Model):
+def residual_fk_dnn(kin_model_name: str, batch_size: int, blocks_count: int, corrector_units: int) -> Model:
     assert blocks_count > 0
     activation_fn = tf.nn.tanh
 

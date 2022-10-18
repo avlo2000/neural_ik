@@ -35,10 +35,10 @@ class DLKinematics:
 
         # Keep them for debugging
         self.static_matrices = tf.constant(
-            solve_static(self._chain), dtype=tf.float32)
+            solve_static(self._chain), dtype=tf.float64)
 
         self.forward_matrices = tf.Variable(
-            tf.stack([self.static_matrices] * self.batch_size), dtype=tf.float32)
+            tf.stack([self.static_matrices] * self.batch_size), dtype=tf.float64)
 
         # Change dimensions for forward matrices here:
         self.forward_matrices = tf.transpose(
@@ -121,15 +121,15 @@ class Joint:
     @property
     def limit(self):
         # @ToDo Set Joint limits to 0.0 if the joint is continious
-        return tf.constant([self.joint.limit.lower, self.joint.limit.upper], dtype=tf.float32)
+        return tf.constant([self.joint.limit.lower, self.joint.limit.upper], dtype=tf.float64)
 
     @property
     def offset(self):
-        return tf.constant(self.joint.origin.xyz, dtype=tf.float32)
+        return tf.constant(self.joint.origin.xyz, dtype=tf.float64)
 
     @property
     def rotation(self):
-        return tf.constant(self.joint.origin.rpy, dtype=tf.float32)
+        return tf.constant(self.joint.origin.rpy, dtype=tf.float64)
 
     @property
     def joint_type(self):

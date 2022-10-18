@@ -4,44 +4,36 @@ import keras
 import numpy as np
 import tensorflow as tf
 import keras.losses as losses
-from tf_kinematics.kinematic_models_io import load as load_kin
-from keras.optimizers import Adam
+from keras.optimizers import SGD
 
 from inference.tf_solver import TFSolver
-from neural_ik.layers import AdamOpt
+from neural_ik.layers import GradOpt
 from tf_kinematics.layers.iso_layers import IsometryCompact, Diff
 from tf_kinematics.layers.kin_layers import ForwardKinematics
 from tf_kinematics.layers.solve_layers import SolveCompactIterGrad
 from tf_kinematics.sys_solve import solve
 
 
-class AdamModel(tf.keras.Model):
-    def __init__(self, kin_model_name: str, batch_size: int, n_iters: int, *args, **kwargs):
+class GDModel(keras.Model):
+    def __init__(self, n_iters: int, kin_model_ident: str, batch_size: int, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.n_iters = n_iters
-        self.iso_compact = IsometryCompact()
-        self.grad = SolveCompactIterGrad('mse', kin_model_name, batch_size)
+        self.kin_model_ident = kin_model_ident
 
-        self.fk_iso = ForwardKinematics(kin_model_name, batch_size)
+        self.iso_compact = IsometryCompact()
+        self.grad = SolveCompactIterGrad("mse", kin_model_ident, batch_size)
+        self.inner_optimizer = GradOpt(name="final_ik")
+
+        self.fk_iso = ForwardKinematics(kin_model_ident, batch_size)
         self.fk_compact = IsometryCompact()
         self.fk_diff = Diff()
 
-        self.eps = 0.001
-
-    def call(self, inputs: (tf.Tensor, tf.Tensor), training=None, mask=None):
+    def call(self, inputs, training=None, mask=None):
         theta_seed, iso_goal = inputs
         gamma = self.iso_compact(iso_goal)
-
-        ts = 1.0
-        lr = 0.01
-        beta1 = 0.9
-
-        vel = tf.zeros_like(theta_seed)
         for _ in range(self.n_iters):
             grad = self.grad([gamma, theta_seed])
-            vel = (1.0 - beta1) * vel + beta1 * tf.square(grad)
-            theta_seed = theta_seed - tf.math.divide_no_nan(lr * grad, tf.sqrt(vel + self.eps))
-            ts += 1
+            theta_seed = self.inner_optimizer([grad, 0.01, theta_seed])
 
         fk = self.fk_iso(theta_seed)
         fk_compact = self.fk_compact(fk)
@@ -49,13 +41,13 @@ class AdamModel(tf.keras.Model):
         return ft_diff
 
 
-class AdamSolver(TFSolver):
+class NewtonSolver(TFSolver):
     def __init__(self, n_iters: int, loss_confidence: float, kin_model_ident: str, *args, **kwargs):
         super().__init__(kin_model_ident, *args, **kwargs)
         self.loss_confidence = loss_confidence
         self.n_iters = n_iters
 
-        self.__opt = Adam()
+        self.__opt = SGD()
         self.__loss_fn = losses.MeanSquaredError()
         self.__sys_fn = tf.function(lambda theta: self._kernel.forward(tf.reshape(theta, [-1])))
 

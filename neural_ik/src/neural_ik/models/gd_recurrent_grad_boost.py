@@ -49,7 +49,7 @@ class GDRecurrentGradBoost(tf.keras.Model):
         return ft_diff
 
 
-def newton_recurrent_grad_boost(kin_model_name: str, batch_size: int, n_iters: int) -> (Model, Model):
+def gd_recurrent_grad_boost(kin_model_name: str, batch_size: int, n_iters: int) -> Model:
     assert n_iters > 0
     model = GDRecurrentGradBoost(kin_model_name, batch_size, n_iters, name='newton_rnn_grad_boost')
 
