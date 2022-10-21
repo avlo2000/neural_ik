@@ -14,7 +14,7 @@ def func(theta1: tf.Tensor, theta2: tf.Tensor, kin: DLKinematics, y_goal: tf.Ten
 
     def fk(th):
         t1, t2 = th
-        thetas = tf.convert_to_tensor([t1, 0.0, 1.0, t2, 1.0, 1.0])
+        thetas = tf.convert_to_tensor([t1, t2, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=tf.float64)
         return tf_compact(kin.forward(tf.reshape(thetas, [-1])))
 
     with tf.GradientTape() as tape:
@@ -33,7 +33,7 @@ def func(theta1: tf.Tensor, theta2: tf.Tensor, kin: DLKinematics, y_goal: tf.Ten
 
 
 def loss_l_inf(y, y_goal):
-    return tf.math.pow(tf.reduce_sum((y - y_goal) ** 50, axis=2), 1 / 50)
+    return tf.reduce_max(tf.abs(y - y_goal), axis=2)
 
 
 def loss_l4(y, y_goal):
@@ -49,13 +49,11 @@ def loss_l1(y, y_goal):
 
 
 def loss_l1l1(y, y_goal):
-    return tf.reduce_sum(tf.abs(y[..., :3] - y_goal[..., :3]), axis=2) + \
-           tf.reduce_sum(tf.abs(y[..., 3:] - y_goal[..., 3:]), axis=2)
+    return loss_l1(y[..., :3], y_goal[..., :3]) + loss_l1(y[..., 3:], y_goal[..., 3:])
 
 
 def loss_l2l2(y, y_goal):
-    return tf.math.pow(tf.reduce_sum(tf.square(y[..., :3] - y_goal[..., :3]), axis=2) + \
-                       tf.reduce_sum(tf.square(y[..., 3:] - y_goal[..., 3:]), axis=2), 1 / 2)
+    return loss_l2(y[..., :3], y_goal[..., :3]) + loss_l2(y[..., 3:], y_goal[..., 3:])
 
 
 def main():
@@ -69,7 +67,8 @@ def main():
     theta1, theta2 = tf.meshgrid(theta1, theta2)
 
     ax = fig.add_subplot(1, 2, 1, projection='3d')
-    loss, grad_u, grad_v = func(theta1, theta2, kin, tf.constant([0.0, 1.0, 0.0, 1.0, 0.0, 1.0]), loss_l2)
+    loss, grad_u, grad_v = func(theta1, theta2, kin, tf.constant([0.0, 1.0, 0.0, 0.0, 0.0, 0.0], dtype=tf.float64),
+                                loss_l1)
     surf = ax.plot_surface(theta1, theta2, loss, cmap='Reds')
     ax.set_xlabel('theta1', labelpad=50)
     ax.set_ylabel('theta2', labelpad=50)
