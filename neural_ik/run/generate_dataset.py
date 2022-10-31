@@ -1,15 +1,20 @@
 from pathlib import Path
 
+import tensorflow as tf
+
 from data.data_io import write_csv
 from data.tf_kin_data import generate_with_theta_seed
 from tf_kinematics import kinematic_models_io
 
 
 PATH_TO_DATA = Path('../data').absolute()
-KINEMATIC_NAME = 'kuka'
-SIZE = 30_000
+KINEMATIC_NAME = 'dof2d'
+SIZE = 10_000
 TRAIN_TEST_SPLIT = 0.6
 SEED_MAX_DIST = 0.1
+
+
+tf.keras.backend.set_floatx('float64')
 
 
 def main():

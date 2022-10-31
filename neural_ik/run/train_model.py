@@ -26,11 +26,11 @@ PATH_TO_MODELS = Path('../models').absolute()
 PATH_TO_PICS = Path('../pics').absolute()
 LOGDIR = Path('../logs').absolute()
 HISTS_DIR = Path('../hists').absolute()
-KINEMATIC_NAME = 'kuka'
+KINEMATIC_NAME = 'dof2d'
 DATASET_SIZE_SUF = '10k'
 
-N_ITERS = 100
-BATCH_SIZE = 32
+N_ITERS = 10
+BATCH_SIZE = 1
 
 tf.config.set_visible_devices([], 'GPU')
 tf.debugging.disable_check_numerics()
@@ -39,10 +39,9 @@ print(tf.config.list_physical_devices())
 
 
 def prepare_model(kin_model, batch_size):
-    model = momentum_recurrent_grad_boost(kin_model, batch_size, N_ITERS)
+    model = gd_recurrent_grad_boost(kin_model, batch_size, N_ITERS)
     opt = tf.keras.optimizers.Adam()
-    model.compile(optimizer=opt, loss=CompactL2L2(1.0, 10.0), metrics=[metrics.gamma_dx, metrics.gamma_dy,
-                                                                       metrics.gamma_dz, metrics.angle_axis_l2])
+    model.compile(optimizer=opt, loss=CompactL2L2(1.0, 0.0), metrics=[metrics.gamma_dx, metrics.gamma_dy])
     model.summary()
     return model
 
@@ -117,19 +116,19 @@ def main():
 
     eval_res = model.evaluate(x=x_test, y=y_test, batch_size=BATCH_SIZE, return_dict=True)
     print(f"Trained model:\n {eval_res}")
-    path_to_history_json = HISTS_DIR / f"{model_full_name}.json"
-    with open(path_to_history_json, mode='w') as f:
-        json.dump(eval_res, f)
+    # path_to_history_json = HISTS_DIR / f"{model_full_name}.json"
+    # with open(path_to_history_json, mode='w') as f:
+    #     json.dump(eval_res, f)
 
     adam_model = MomentumModel(kin_model, BATCH_SIZE, N_ITERS)
-    adam_model.compile(loss=CompactL2L2(1.0, 10.0), metrics=[metrics.gamma_dx, metrics.gamma_dy,
-                                                             metrics.gamma_dz, metrics.angle_axis_l2])
+    adam_model.compile(loss=CompactL2L2(1.0, 0.0), metrics=[metrics.gamma_dx, metrics.gamma_dy,
+                                                            metrics.gamma_dz, metrics.angle_axis_l2])
     eval_res = adam_model.evaluate(x=x_test, y=y_test, batch_size=BATCH_SIZE, return_dict=True)
     print(f"Momentum model:\n {eval_res}")
 
     adam_model = AdamModel(kin_model, BATCH_SIZE, N_ITERS)
-    adam_model.compile(loss=CompactL2L2(1.0, 10.0), metrics=[metrics.gamma_dx, metrics.gamma_dy,
-                                                             metrics.gamma_dz, metrics.angle_axis_l2])
+    adam_model.compile(loss=CompactL2L2(1.0, 0.0), metrics=[metrics.gamma_dx, metrics.gamma_dy,
+                                                            metrics.gamma_dz, metrics.angle_axis_l2])
     eval_res = adam_model.evaluate(x=x_test, y=y_test, batch_size=BATCH_SIZE, return_dict=True)
     print(f"Adam model:\n {eval_res}")
 

@@ -48,3 +48,13 @@ def omnipointer_robot(batch_size: int) -> DLKinematics:
     kinematics = DLKinematics(chain, from_link, to_link, batch_size=batch_size)
     return kinematics
 
+
+@kinematic_model
+def dof2d_robot(batch_size: int) -> DLKinematics:
+    path_to_urdf = PATH_TO_URDF/'dof2d.urdf'
+    from_link = 'base_link'
+    to_link = 'arm_link_2'
+    chain = chain_from_urdf_file(path_to_urdf)
+    kinematics = DLKinematics(chain, from_link, to_link, batch_size=batch_size)
+    return kinematics
+

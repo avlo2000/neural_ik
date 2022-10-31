@@ -22,19 +22,14 @@ class MomentumRecurrentGradBoost(tf.keras.Model):
         self.grad_gamma_and_seed = layers.Concatenate()
 
         self.lr_corrector = keras.Sequential([
-            layers.Dense(32, activation=activation),
-            layers.Dense(64, activation=activation),
-            layers.Dense(128, activation=activation),
-            layers.Dense(256, activation=activation),
-            layers.Dense(128, activation=activation),
-            layers.Dense(64, activation=activation),
+            layers.Dense(16, activation=activation),
             layers.Dense(32, activation=activation),
             layers.Dense(dof, activation=activation)
         ], name='gradient_boost')
 
         self.beta_corrector = keras.Sequential([
+            layers.Dense(16, activation=activation),
             layers.Dense(32, activation=activation),
-            layers.Dense(64, activation=activation),
             layers.Dense(dof, activation='sigmoid')
         ], name='beta_boost')
 

@@ -7,7 +7,7 @@ import tensorflow as tf
 
 
 def rand_state(kin: DLKinematics):
-    return tf.random.uniform(shape=(1, kin.dof), minval=kin.limits[0], maxval=kin.limits[1])
+    return tf.random.uniform(shape=(1, kin.dof), minval=kin.limits[0], maxval=kin.limits[1], dtype=tf.float64)
 
 
 def rawdata_to_dataset(kin: DLKinematics, feat_names: Iterable[str], raw_data: Iterable[Iterable[Any]]) -> \

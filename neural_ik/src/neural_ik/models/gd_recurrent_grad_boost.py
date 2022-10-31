@@ -37,11 +37,20 @@ class GDRecurrentGradBoost(tf.keras.Model):
     def call(self, inputs: (tf.Tensor, tf.Tensor), training=None, mask=None):
         theta_seed, iso_goal = inputs
         gamma = self.iso_compact(iso_goal)
+        tf.debugging.check_numerics(gamma, "gamma")
+
         for _ in range(self.n_iters):
             grad = self.grad([gamma, theta_seed])
+            tf.debugging.check_numerics(grad, "grad")
+
             grad_gamma_and_seed = self.grad_gamma_and_seed([grad, gamma, theta_seed])
+            tf.debugging.check_numerics(grad_gamma_and_seed, "grad_gamma_and_seed")
+
             lr = self.lr_corrector(grad_gamma_and_seed)
+            tf.debugging.check_numerics(lr, "lr")
+
             theta_seed = self.inner_optimizer([grad, lr, theta_seed])
+            tf.debugging.check_numerics(theta_seed, "theta_seed")
 
         fk = self.fk_iso(theta_seed)
         fk_compact = self.fk_compact(fk)
