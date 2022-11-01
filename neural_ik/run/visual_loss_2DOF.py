@@ -11,6 +11,7 @@ tf.config.set_visible_devices([], 'GPU')
 
 def func(theta1: tf.Tensor, theta2: tf.Tensor, kin: DLKinematics, y_goal: tf.Tensor, loss_fn):
     original_shape = theta1.shape
+    y_goal = tf_compact(y_goal)
 
     def fk(th):
         t1, t2 = th
@@ -68,7 +69,11 @@ def main():
     theta1, theta2 = tf.meshgrid(theta1, theta2)
 
     ax = fig.add_subplot(1, 2, 1, projection='3d')
-    loss, grad_u, grad_v = func(theta1, theta2, kin, tf.constant([1.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=tf.float64),
+    loss, grad_u, grad_v = func(theta1, theta2, kin, tf.constant([1.0, 0.0, 0.0, 1.0,
+                                                                  0.0, 1.0, 0.0, 0.0,
+                                                                  0.0, 0.0, 1.0, 0.0,
+                                                                  0.0, 0.0, 0.0, 1.0,
+                                                                  ], dtype=tf.float64, shape=(1, 4, 4)),
                                 loss_l2)
     surf = ax.plot_surface(theta1, theta2, loss, cmap='Reds')
     ax.set_xlabel('theta1', labelpad=50)
@@ -82,8 +87,6 @@ def main():
 
     fig.colorbar(surf)
     plt.show()
-
-
 
 
 if __name__ == '__main__':

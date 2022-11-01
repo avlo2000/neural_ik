@@ -39,7 +39,7 @@ print(tf.config.list_physical_devices())
 
 
 def prepare_model(kin_model, batch_size):
-    model = gd_recurrent_grad_boost(kin_model, batch_size, N_ITERS)
+    model = momentum_recurrent_grad_boost(kin_model, batch_size, N_ITERS)
     opt = tf.keras.optimizers.Adam()
     model.compile(optimizer=opt, loss='mse', metrics=[metrics.gamma_dx, metrics.gamma_dy])
     model.summary()
@@ -83,8 +83,8 @@ def prepare_test_data(kin_model, batch_size):
 
 
 def train_model(model, x, y, x_val, y_val, batch_size):
-    tag = '_100ITERS_BIG_1_1'
-    epochs = 20
+    tag = '_experiment'
+    epochs = 1
 
     model_full_name = f'{model.name}_bs{BATCH_SIZE}__{KINEMATIC_NAME}_{DATASET_SIZE_SUF}__{tag}'
     model_path = PATH_TO_MODELS / model_full_name
