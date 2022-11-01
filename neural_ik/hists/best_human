@@ -1,6 +1,21 @@
-boosted grad descend:
+developed method:
     loss: 0.4382 - gamma_dx: 0.0128 - gamma_dy: 0.0140 - gamma_dz: 0.0141 - angle_axis_l2: 0.1227
 grad descend:
     loss: 2.5915 - gamma_dx: 0.0372 - gamma_dy: 0.0390 - gamma_dz: 0.0390 - angle_axis_l2: 0.3383
-adam optimizer descend:
+rmsrpop descend:
     loss: 0.1947 - gamma_dx: 0.0053 - gamma_dy: 0.0051 - gamma_dz: 0.0052 - angle_axis_l2: 0.0578
+momentum model:
+    loss: 3.8617 - gamma_dx: 0.0342 - gamma_dy: 0.0336 - gamma_dz: 0.0336 - angle_axis_l2: 0.4215
+
+
+Trained model:
+ {'loss': 0.0004613760617377961, 'gamma_dx': 0.007819838001302325, 'gamma_dy': 0.008038150788467438, 'gamma_dz': 0.007919825739630145, 'angle_axis_l2': 0.11550411306393905}
+125/125 [==============================] - 55s 188ms/step - loss: 3.8617 - gamma_dx: 0.0342 - gamma_dy: 0.0336 - gamma_dz: 0.0336 - angle_axis_l2: 0.4215
+Momentum model:
+ {'loss': 3.8617119191669156, 'gamma_dx': 0.03423089456457017, 'gamma_dy': 0.03361775864461218, 'gamma_dz': 0.03361160930527862, 'angle_axis_l2': 0.4214634731880647}
+125/125 [==============================] - 55s 211ms/step - loss: 0.4006 - gamma_dx: 0.0118 - gamma_dy: 0.0116 - gamma_dz: 0.0117 - angle_axis_l2: 0.1464
+RMSProp model:
+ {'loss': 0.4005871399812367, 'gamma_dx': 0.011809166486537749, 'gamma_dy': 0.011565713744877587, 'gamma_dz': 0.011720508451980345, 'angle_axis_l2': 0.14644346252471513}
+125/125 [==============================] - 57s 228ms/step - loss: 3.8622 - gamma_dx: 0.0342 - gamma_dy: 0.0336 - gamma_dz: 0.0336 - angle_axis_l2: 0.4214
+GD model:
+ {'loss': 3.8621997211514687, 'gamma_dx': 0.034227345396374495, 'gamma_dy': 0.03361514243221022, 'gamma_dz': 0.03360948984655626, 'angle_axis_l2': 0.42141758370689886}

@@ -15,7 +15,7 @@ from tf_kinematics.sys_solve import solve
 
 
 class GDModel(keras.Model):
-    def __init__(self, n_iters: int, kin_model_ident: str, batch_size: int, *args, **kwargs):
+    def __init__(self, kin_model_ident: str, batch_size: int, n_iters: int, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.n_iters = n_iters
         self.kin_model_ident = kin_model_ident

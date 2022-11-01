@@ -5,7 +5,7 @@ import tensorflow as tf
 
 from data.data_io import read_csv
 from data.tf_kin_data import rawdata_to_dataset
-from inference.adam_solver import AdamModel
+
 from inference.gd_solver import GDModel
 from inference.momentum_solver import MomentumModel
 from neural_ik.losses import CompactXYZL2CosAA, CompactL2L2, CompactL4L4
@@ -41,7 +41,7 @@ print(tf.config.list_physical_devices())
 def prepare_model(kin_model, batch_size):
     model = gd_recurrent_grad_boost(kin_model, batch_size, N_ITERS)
     opt = tf.keras.optimizers.Adam()
-    model.compile(optimizer=opt, loss=CompactL2L2(1.0, 0.0), metrics=[metrics.gamma_dx, metrics.gamma_dy])
+    model.compile(optimizer=opt, loss='mse', metrics=[metrics.gamma_dx, metrics.gamma_dy])
     model.summary()
     return model
 
@@ -126,11 +126,11 @@ def main():
     eval_res = adam_model.evaluate(x=x_test, y=y_test, batch_size=BATCH_SIZE, return_dict=True)
     print(f"Momentum model:\n {eval_res}")
 
-    adam_model = AdamModel(kin_model, BATCH_SIZE, N_ITERS)
-    adam_model.compile(loss=CompactL2L2(1.0, 0.0), metrics=[metrics.gamma_dx, metrics.gamma_dy,
-                                                            metrics.gamma_dz, metrics.angle_axis_l2])
-    eval_res = adam_model.evaluate(x=x_test, y=y_test, batch_size=BATCH_SIZE, return_dict=True)
-    print(f"Adam model:\n {eval_res}")
+    # adam_model = AdamModel(kin_model, BATCH_SIZE, N_ITERS)
+    # adam_model.compile(loss=CompactL2L2(1.0, 0.0), metrics=[metrics.gamma_dx, metrics.gamma_dy,
+    #                                                         metrics.gamma_dz, metrics.angle_axis_l2])
+    # eval_res = adam_model.evaluate(x=x_test, y=y_test, batch_size=BATCH_SIZE, return_dict=True)
+    # print(f"Adam model:\n {eval_res}")
 
     plot_training_history(history, PATH_TO_PICS / f'{model_full_name}.png')
 

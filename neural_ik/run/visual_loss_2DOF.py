@@ -15,7 +15,8 @@ def func(theta1: tf.Tensor, theta2: tf.Tensor, kin: DLKinematics, y_goal: tf.Ten
     def fk(th):
         t1, t2 = th
         thetas = tf.convert_to_tensor([t1, t2], dtype=tf.float64)
-        return tf_compact(kin.forward(tf.reshape(thetas, [-1])))
+        a = tf_compact(kin.forward(tf.reshape(thetas, [-1])))
+        return a
 
     with tf.GradientTape() as tape:
         theta1 = tf.reshape(theta1, shape=[-1])

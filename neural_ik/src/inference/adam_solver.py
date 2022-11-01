@@ -15,7 +15,7 @@ from tf_kinematics.layers.solve_layers import SolveCompactIterGrad
 from tf_kinematics.sys_solve import solve
 
 
-class AdamModel(tf.keras.Model):
+class RMSPropModel(tf.keras.Model):
     def __init__(self, kin_model_name: str, batch_size: int, n_iters: int, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.n_iters = n_iters

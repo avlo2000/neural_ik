@@ -1,31 +1,50 @@
+from pathlib import Path
+
+import keras
 import numpy as np
 import tensorflow as tf
+from keras.models import load_model
 from mpl_toolkits import mplot3d
 import matplotlib.pyplot as plt
+
+from neural_ik.metrics import gamma_dx, gamma_dy
 from tf_kinematics.kinematic_models_io import load
 from tf_kinematics.tf_transformations import tf_compact
 from tf_kinematics.dlkinematics import DLKinematics
 
+PATH_TO_DATA = Path('../data').absolute()
+PATH_TO_MODELS = Path('../models').absolute()
+KINEMATIC_NAME = 'kuka'
+DATASET_SIZE_SUF = '2k'
+BATCH_SIZE = 32
+metrics = [gamma_dx, gamma_dy]
+tf.keras.backend.set_floatx('float64')
 tf.config.set_visible_devices([], 'GPU')
+
+
+model: keras.Model = load_model(PATH_TO_MODELS / 'dof2_experiment')
 
 
 def func(theta1: tf.Tensor, theta2: tf.Tensor, kin: DLKinematics, y_goal: tf.Tensor, loss_fn):
     original_shape = theta1.shape
+    goal_compact = tf.reshape(tf_compact(y_goal), [1, 1, 6])
 
+    @tf.function
     def fk(th):
         t1, t2 = th
-        thetas = tf.convert_to_tensor([t1, t2, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=tf.float64)
-        return tf_compact(kin.forward(tf.reshape(thetas, [-1])))
+        thetas = tf.reshape(tf.convert_to_tensor([t1, t2], dtype=tf.float64), shape=(1, 2))
+        goal_actual = model((thetas, y_goal))
+        goal_actual = tf.reshape(goal_actual, [1, 1, 6])
+        ls = loss_fn(goal_compact, goal_actual)
+        return ls, ls
 
     with tf.GradientTape() as tape:
         theta1 = tf.reshape(theta1, shape=[-1])
         theta2 = tf.reshape(theta2, shape=[-1])
         tape.watch(theta1)
         tape.watch(theta2)
-        y_actual = tf.vectorized_map(fk, (theta1, theta2))
-        y_actual = tf.reshape(y_actual, [original_shape[0], original_shape[1], 6])
-        y_goal = tf.reshape(y_goal, [1, 1, 6])
-        loss = loss_fn(y_goal, y_actual)
+        loss = tf.map_fn(fk, (theta1, theta2))
+
     grad1, grad2 = tape.gradient(loss, [theta1, theta2])
     grad1 = tf.reshape(grad1, original_shape)
     grad2 = tf.reshape(grad2, original_shape)
@@ -57,18 +76,21 @@ def loss_l2l2(y, y_goal):
 
 
 def main():
-    kin = load('kuka_robot', 1)
+    kin = load('dof2d_robot', 1)
 
     fig = plt.figure(figsize=(16, 14))
 
-    theta1 = tf.range(-np.pi, np.pi + .1, 0.1)
-    theta2 = tf.range(-np.pi, np.pi + .1, 0.1)
+    theta1 = tf.range(-np.pi, np.pi + .1, 0.1, dtype=tf.float64)
+    theta2 = tf.range(-np.pi, np.pi + .1, 0.1, dtype=tf.float64)
 
     theta1, theta2 = tf.meshgrid(theta1, theta2)
 
     ax = fig.add_subplot(1, 2, 1, projection='3d')
-    loss, grad_u, grad_v = func(theta1, theta2, kin, tf.constant([0.0, 1.0, 0.0, 0.0, 0.0, 0.0], dtype=tf.float64),
-                                loss_l2l2)
+    loss, grad_u, grad_v = func(theta1, theta2, kin, tf.constant([1.0, 0.0, 0.0, 1.0,
+                                                                  0.0, 1.0, 0.0, 0.0,
+                                                                  0.0, 0.0, 1.0, 0.0,
+                                                                  0.0, 0.0, 0.0, 1.0,
+                                                                  ], dtype=tf.float64, shape=(1, 4, 4)), loss_l2)
     surf = ax.plot_surface(theta1, theta2, loss, cmap='Reds')
     ax.set_xlabel('theta1', labelpad=50)
     ax.set_ylabel('theta2', labelpad=50)

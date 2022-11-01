@@ -10,7 +10,7 @@ from tf_kinematics.layers.kin_layers import ForwardKinematics
 from tf_kinematics.layers.solve_layers import SolveCompactIterGrad
 
 
-class AdamRecurrentGradBoost(tf.keras.Model):
+class RMSPropRecurrentGradBoost(tf.keras.Model):
     def __init__(self, kin_model_name: str, batch_size: int, n_iters: int, *args, **kwargs):
         super().__init__(*args, **kwargs)
         dof = load_kin(kin_model_name, batch_size).dof
@@ -27,13 +27,7 @@ class AdamRecurrentGradBoost(tf.keras.Model):
             layers.Dense(dof, activation='linear')
         ], name='gradient_boost')
 
-        self.beta1_corrector = keras.Sequential([
-            layers.Dense(16, activation=activation),
-            layers.Dense(32, activation=activation),
-            layers.Dense(dof, activation='sigmoid')
-        ], name='beta_boost')
-
-        self.beta2_corrector = keras.Sequential([
+        self.beta_corrector = keras.Sequential([
             layers.Dense(16, activation=activation),
             layers.Dense(32, activation=activation),
             layers.Dense(dof, activation='sigmoid')
@@ -51,22 +45,18 @@ class AdamRecurrentGradBoost(tf.keras.Model):
 
         ts = 1.0
         vel = tf.zeros_like(theta_seed)
-        m = tf.zeros_like(theta_seed)
         for _ in range(self.n_iters):
             grad = self.grad([gamma, theta_seed])
             grad_gamma_and_seed = self.grad_gamma_and_seed([grad, gamma, theta_seed])
             lr = self.lr_corrector(grad_gamma_and_seed)
-            beta1 = self.beta1_corrector(grad_gamma_and_seed)
-            beta2 = self.beta2_corrector(grad_gamma_and_seed)
+            beta = self.beta_corrector(grad_gamma_and_seed)
 
             lr = tf.clip_by_value(lr, clip_value_min=0.0001, clip_value_max=0.9999)
-            beta1 = tf.clip_by_value(beta1, clip_value_min=0.0001, clip_value_max=0.999)
-            beta2 = tf.clip_by_value(beta2, clip_value_min=0.0001, clip_value_max=0.999)
+            beta = tf.clip_by_value(beta, clip_value_min=0.5001, clip_value_max=0.999)
 
-            vel = beta1 * vel + (1.0 - beta1) * tf.square(grad) + self.eps
-            m = (1.0 - beta2) * m + beta2 * grad
+            vel = beta * vel + (1.0 - beta) * tf.square(grad) + self.eps
 
-            theta_seed = theta_seed - tf.math.divide_no_nan(lr * grad, tf.sqrt(vel + self.eps))
+            theta_seed = theta_seed - tf.math.divide_no_nan(lr * grad, tf.sqrt(vel))
             ts += 1
 
         fk = self.fk_iso(theta_seed)
@@ -75,9 +65,9 @@ class AdamRecurrentGradBoost(tf.keras.Model):
         return ft_diff
 
 
-def adam_recurrent_grad_boost(kin_model_name: str, batch_size: int, n_iters: int) -> Model:
+def rmsprop_recurrent_grad_boost(kin_model_name: str, batch_size: int, n_iters: int) -> Model:
     assert n_iters > 0
-    model = AdamRecurrentGradBoost(kin_model_name, batch_size, n_iters, name='adam_recurrent_grad_boost')
+    model = RMSPropRecurrentGradBoost(kin_model_name, batch_size, n_iters, name='rmsprop_recurrent_grad_boost')
 
     dof = load_kin(kin_model_name, batch_size).dof
     model.build([(batch_size, dof), (batch_size, 4, 4)])

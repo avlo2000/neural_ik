@@ -4,3 +4,29 @@ grad descend:
     loss: 2.9804 - gamma_dx: 0.0378 - gamma_dy: 0.0384 - gamma_dz: 0.0260 - angle_axis_l2: 0.3063
 adam optimizer descend:
     loss: 0.1403 - gamma_dx: 0.0028 - gamma_dy: 0.0027 - gamma_dz: 0.0036 - angle_axis_l2: 0.0354
+
+
+Trained model:
+ loss: 0.8186202284169543, gamma_dx: 0.007862387112786424, gamma_dy: 0.008839161562645212, gamma_dz: 0.009268204914252603, angle_axis_l2: 0.12278651437675736}
+125/125 [==============================] - 49s 166ms/step - loss: 3.8617 - gamma_dx: 0.0342 - gamma_dy: 0.0336 - gamma_dz: 0.0336 - angle_axis_l2: 0.4215
+Momentum model:
+ {'loss': 3.8617119191669156, 'gamma_dx': 0.03423089456457017, 'gamma_dy': 0.03361775864461218, 'gamma_dz': 0.03361160930527862, 'angle_axis_l2': 0.4214634731880647}
+125/125 [==============================] - 54s 230ms/step - loss: 0.4006 - gamma_dx: 0.0118 - gamma_dy: 0.0116 - gamma_dz: 0.0117 - angle_axis_l2: 0.1464
+GD model:
+ {'loss': 0.4005871399812367, 'gamma_dx': 0.011809166486537749, 'gamma_dy': 0.011565713744877587, 'gamma_dz': 0.011720508451980345, 'angle_axis_l2': 0.14644346252471513}
+125/125 [==============================] - 32s 256ms/step - loss: 0.4006 - gamma_dx: 0.0118 - gamma_dy: 0.0116 - gamma_dz: 0.0117 - angle_axis_l2: 0.1464
+RMSprop model:
+ {'loss': 0.4005871399812367, 'gamma_dx': 0.011809166486537749, 'gamma_dy': 0.011565713744877587, 'gamma_dz': 0.011720508451980345, 'angle_axis_l2': 0.14644346252471513}
+
+
+ Trained model:
+ {'loss': 5.4961673333623395e-06, 'gamma_dx': 0.0017822140431699347, 'gamma_dy': 0.001721219216239499, 'gamma_dz': 0.002693280079050392, 'angle_axis_l2': 0.030651878767561255}
+125/125 [==============================] - 30s 67ms/step - loss: 4.9326 - gamma_dx: 0.0353 - gamma_dy: 0.0331 - gamma_dz: 0.0243 - angle_axis_l2: 0.3950
+Momentum model:
+ {'loss': 4.932585273383914, 'gamma_dx': 0.03531351485426932, 'gamma_dy': 0.03305292791859862, 'gamma_dz': 0.024341037993616838, 'angle_axis_l2': 0.3949934687961988}
+125/125 [==============================] - 31s 68ms/step - loss: 0.3052 - gamma_dx: 0.0066 - gamma_dy: 0.0061 - gamma_dz: 0.0083 - angle_axis_l2: 0.0932
+RMSProp model:
+ {'loss': 0.3051979955009099, 'gamma_dx': 0.006560354204686492, 'gamma_dy': 0.006064066753987267, 'gamma_dz': 0.00828797193154573, 'angle_axis_l2': 0.09318181431500865}
+125/125 [==============================] - 30s 67ms/step - loss: 4.9313 - gamma_dx: 0.0353 - gamma_dy: 0.0330 - gamma_dz: 0.0243 - angle_axis_l2: 0.3949
+GD model:
+ {'loss': 4.931304398230014, 'gamma_dx': 0.03530633345479188, 'gamma_dy': 0.03304515299642988, 'gamma_dz': 0.024337710489747366, 'angle_axis_l2': 0.3949062517978566}

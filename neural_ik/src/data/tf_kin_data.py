@@ -22,9 +22,9 @@ def rawdata_to_dataset(kin: DLKinematics, feat_names: Iterable[str], raw_data: I
     iso_transforms = []
 
     for sample in tqdm(raw_data):
-        thetas.append(tf.convert_to_tensor(sample[:kin.dof]))
-        thetas_seed.append(tf.convert_to_tensor(sample[kin.dof:2*kin.dof]))
-        iso_transforms.append(tf.reshape(tf.convert_to_tensor(sample[2*kin.dof:]), shape=(4, 4)))
+        thetas.append(tf.convert_to_tensor(sample[:kin.dof], dtype=tf.float64))
+        thetas_seed.append(tf.convert_to_tensor(sample[kin.dof:2*kin.dof], dtype=tf.float64))
+        iso_transforms.append(tf.reshape(tf.convert_to_tensor(sample[2*kin.dof:], dtype=tf.float64), shape=(4, 4)))
 
     thetas = tf.squeeze(tf.stack(thetas))
     thetas_seed = tf.squeeze(tf.stack(thetas_seed))

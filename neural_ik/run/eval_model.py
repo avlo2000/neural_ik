@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import keras
+import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 from keras.models import load_model
@@ -8,24 +9,22 @@ from tqdm import tqdm
 
 from data.data_io import read_csv
 from data.tf_kin_data import rawdata_to_dataset
-from inference.adam_solver import AdamModel
 from neural_ik.metrics import gamma_dx, gamma_dy, gamma_dz, angle_axis_l2
-from neural_ik.models.newton_dnn_grad_boost import newton_dnn_grad_boost
 from tf_kinematics.kinematic_models_io import load
-import seaborn as sns
-import matplotlib.pyplot as plt
-import pandas as pd
 
 PATH_TO_DATA = Path('../data').absolute()
 PATH_TO_MODELS = Path('../models').absolute()
 KINEMATIC_NAME = 'kuka'
-DATASET_SIZE_SUF = '10k'
+DATASET_SIZE_SUF = '2k'
 BATCH_SIZE = 32
 metrics = [gamma_dx, gamma_dy, gamma_dz, angle_axis_l2]
+tf.keras.backend.set_floatx('float64')
+tf.config.set_visible_devices([], 'GPU')
 
 
 def prepare_model() -> keras.Model:
-    model: keras.Model = load_model(PATH_TO_MODELS / 'momentum_recurrent_grad_boost_bs32__kuka_30k___0_3_tiny')
+    # model: keras.Model = NewtonRecurrentBoost(f'{KINEMATIC_NAME}_robot', BATCH_SIZE, 10)
+    model: keras.Model = load_model(PATH_TO_MODELS / 'momentum_recurrent_grad_boost_bs32__kuka_10k___100ITERS_BIG_1_1')
     model.compile(loss='mse', metrics=metrics)
     return model
 
@@ -42,7 +41,7 @@ def prepare_data(kin_model, batch_size):
     n -= n % batch_size
 
     x = [thetas_seed[:n], iso_transforms[:n]]
-    y = tf.zeros(shape=(n, 6), dtype=float)
+    y = tf.zeros(shape=(n, 6), dtype=tf.float64)
     return x, y
 
 
@@ -52,7 +51,7 @@ def main():
     model = prepare_model()
     x, y_true = prepare_data(kin_model, BATCH_SIZE)
 
-    y_pred = model.predict(x=x, batch_size=BATCH_SIZE)
+    y_pred = model.predict(x=x, batch_size=BATCH_SIZE, verbose=1)
     errors_data = {m.__name__: [] for m in metrics}
     for i in tqdm(range(len(y_true))):
         for m in metrics:
