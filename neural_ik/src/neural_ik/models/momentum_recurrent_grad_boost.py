@@ -14,7 +14,7 @@ class MomentumRecurrentGradBoost(tf.keras.Model):
     def __init__(self, kin_model_name: str, batch_size: int, n_iters: int, *args, **kwargs):
         super().__init__(*args, **kwargs)
         dof = load_kin(kin_model_name, batch_size).dof
-        activation = tf.nn.relu
+        activation = tf.nn.tanh
 
         self.n_iters = n_iters
         self.iso_compact = IsometryCompact()
@@ -34,7 +34,7 @@ class MomentumRecurrentGradBoost(tf.keras.Model):
         ], name='beta_boost')
 
         # self.grad_opt = MomentumOpt(beta=0.9, name='final_ik')
-
+        self.ik_theta = layers.Lambda(lambda x: x)
         self.fk_iso = ForwardKinematics(kin_model_name, batch_size)
         self.fk_compact = IsometryCompact()
         self.fk_diff = Diff()
@@ -57,6 +57,7 @@ class MomentumRecurrentGradBoost(tf.keras.Model):
 
             theta_seed = theta_seed - lr * momentum
 
+        self.ik_theta(theta_seed)
         fk = self.fk_iso(theta_seed)
         fk_compact = self.fk_compact(fk)
         ft_diff = self.fk_diff([fk_compact, gamma])

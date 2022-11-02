@@ -15,7 +15,7 @@ class GDRecurrentGradBoost(tf.keras.Model):
     def __init__(self, kin_model_name: str, batch_size: int, n_iters: int, *args, **kwargs):
         super().__init__(*args, **kwargs)
         dof = load_kin(kin_model_name, batch_size).dof
-        activation = tf.nn.relu
+        activation = tf.nn.leaky_relu
 
         self.n_iters = n_iters
         self.iso_compact = IsometryCompact()

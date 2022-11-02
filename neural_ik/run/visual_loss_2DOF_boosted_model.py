@@ -29,7 +29,6 @@ def func(theta1: tf.Tensor, theta2: tf.Tensor, y_goal: tf.Tensor, loss_fn):
     original_shape = theta1.shape
     goal_compact = tf.reshape(tf_compact(y_goal), [1, 1, 6])
 
-    @tf.function
     def fn(th):
         t1, t2 = th
         thetas = tf.reshape(tf.convert_to_tensor([t1, t2], dtype=tf.float64), shape=(1, 2))
@@ -83,7 +82,7 @@ def main():
     theta1, theta2 = tf.meshgrid(theta1, theta2)
 
     ax = fig.add_subplot(1, 1, 1, projection='3d')
-    loss = func(theta1, theta2, tf.constant([1.0, 0.0, 0.0, 0.2,
+    loss = func(theta1, theta2, tf.constant([1.0, 0.0, 0.0, 1.0,
                                              0.0, 1.0, 0.0, 1.0,
                                              0.0, 0.0, 1.0, 0.0,
                                              0.0, 0.0, 0.0, 1.0,

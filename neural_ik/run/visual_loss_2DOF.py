@@ -6,6 +6,7 @@ from tf_kinematics.kinematic_models_io import load
 from tf_kinematics.tf_transformations import tf_compact
 from tf_kinematics.dlkinematics import DLKinematics
 
+
 tf.config.set_visible_devices([], 'GPU')
 
 
@@ -68,7 +69,7 @@ def main():
 
     theta1, theta2 = tf.meshgrid(theta1, theta2)
 
-    ax = fig.add_subplot(1, 2, 1, projection='3d')
+    ax = fig.add_subplot(1, 1, 1, projection='3d')
     loss, grad_u, grad_v = func(theta1, theta2, kin, tf.constant([1.0, 0.0, 0.0, 1.0,
                                                                   0.0, 1.0, 0.0, 0.0,
                                                                   0.0, 0.0, 1.0, 0.0,
@@ -80,10 +81,10 @@ def main():
     ax.set_ylabel('theta2', labelpad=50)
     ax.set_zlabel('loss_l1l1', labelpad=50)
 
-    ax = fig.add_subplot(1, 2, 2)
-    ax.quiver(theta1, theta2, grad_u, grad_v)
-    ax.set_xlabel('grad_theta1', labelpad=50)
-    ax.set_ylabel('grad_theta2', labelpad=50)
+    # ax = fig.add_subplot(1, 2, 2)
+    # ax.quiver(theta1, theta2, grad_u, grad_v)
+    # ax.set_xlabel('grad_theta1', labelpad=50)
+    # ax.set_ylabel('grad_theta2', labelpad=50)
 
     fig.colorbar(surf)
     plt.show()

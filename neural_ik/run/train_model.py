@@ -29,7 +29,7 @@ HISTS_DIR = Path('../hists').absolute()
 KINEMATIC_NAME = 'dof2d'
 DATASET_SIZE_SUF = '10k'
 
-N_ITERS = 10
+N_ITERS = 15
 BATCH_SIZE = 1
 
 tf.config.set_visible_devices([], 'GPU')
@@ -84,7 +84,7 @@ def prepare_test_data(kin_model, batch_size):
 
 def train_model(model, x, y, x_val, y_val, batch_size):
     tag = '_experiment'
-    epochs = 1
+    epochs = 5
 
     model_full_name = f'{model.name}_bs{BATCH_SIZE}__{KINEMATIC_NAME}_{DATASET_SIZE_SUF}__{tag}'
     model_path = PATH_TO_MODELS / model_full_name
